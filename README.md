@@ -1,1 +1,1 @@
-# kubernetes-resource-advisor
+# resource-advisor
