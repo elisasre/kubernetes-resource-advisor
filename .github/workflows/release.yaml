@@ -1,0 +1,82 @@
+name: Release
+
+on:
+  release:
+    types:
+    - published
+
+jobs:
+  build-release:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.x
+
+    - name: Run ensure
+      run: |
+        make deps
+        make ensure
+
+    - name: Run test
+      run: |
+        make test
+
+    - name: Build and package binaries
+      run: |
+        make build-all-packaged
+
+    - name: Upload Linux binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: bin/resource-advisor-linux-amd64
+        asset_name: resource-advisor-linux-amd64
+        asset_content_type: application/octet-stream
+
+    - name: Upload MacOS amd binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: bin/resource-advisor-darwin-amd64
+        asset_name: resource-advisor-darwin-amd64
+        asset_content_type: application/octet-stream
+
+    - name: Upload MacOS arm binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: bin/resource-advisor-darwin-arm64
+        asset_name: resource-advisor-darwin-arm64
+        asset_content_type: application/octet-stream
+
+    - name: Upload Windows binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: bin/resource-advisor-windows-amd64.exe
+        asset_name: resource-advisor-windows-amd64.exe
+        asset_content_type: application/octet-stream
+
+    - name: Upload checksum file
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: bin/sha256sum.txt
+        asset_name: sha256sum.txt
+        asset_content_type: text/plain

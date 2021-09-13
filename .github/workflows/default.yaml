@@ -1,0 +1,39 @@
+name: Default Branch
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  build-master:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.x
+
+    - name: Run ensure
+      run: |
+        make deps
+        make ensure
+
+    - name: Run test
+      run: |
+        make test
+
+    - name: Build and package binaries
+      run: |
+        make build-all-packaged
+
+    - uses: elisa-actions/release-drafter@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        disable-releaser: false
+        disable-autolabeler: true
