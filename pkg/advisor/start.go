@@ -27,7 +27,7 @@ func Execute() {
 		Short: "Kubernetes resource-advisor",
 		Long:  "Kubernetes resource-advisor",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := Run(options)
+			_, err := Run(options)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "\n%v\n", err)
 				os.Exit(1)

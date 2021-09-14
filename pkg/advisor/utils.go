@@ -174,7 +174,6 @@ func makePrometheusClientForCluster() (*promClient, error) {
 		endpoint: u,
 		client:   httpClient,
 	}, nil
-	return nil, nil
 }
 
 func queryPrometheus(ctx context.Context, client *promClient, query string, ts time.Time) (interface{}, promv1.Warnings, error) {
@@ -231,7 +230,7 @@ func (c *promClient) Do(ctx context.Context, req *http.Request) (*http.Response,
 	return resp, body, err
 }
 
-func ByteCountSI(b int64) string {
+func byteCountSI(b int64) string {
 	const unit = 1000
 	if b < unit {
 		return fmt.Sprintf("%d B", b)
@@ -253,7 +252,7 @@ func (o *Options) findPods(ctx context.Context, namespace string, selector strin
 		RequestMem: make(map[string]float64),
 	}
 
-	pods, err := o.client.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+	pods, err := o.Client.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
 		LabelSelector: selector,
 	})
 	if err != nil {
