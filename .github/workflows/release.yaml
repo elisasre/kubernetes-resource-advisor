@@ -6,9 +6,9 @@ on:
     - published
 
 jobs:
-  build-release:
+  test-release:
     runs-on: self-hosted
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
     - uses: actions/checkout@v2
       with:
@@ -27,9 +27,27 @@ jobs:
       run: |
         make test
 
-    - name: Build and package binaries
+  publish-linux-package:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    needs: test-release
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.x
+
+    - name: Run ensure
       run: |
-        make build-all-packaged
+        make deps
+        make ensure
+
+    - name: Build and package linux binaries
+      run: |
+        make build-package-linux-amd64
 
     - name: Upload Linux binary
       uses: actions/upload-release-asset@v1
@@ -41,6 +59,80 @@ jobs:
         asset_name: resource-advisor-linux-amd64
         asset_content_type: application/octet-stream
 
+    - name: Upload checksum file
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: bin/linux-amd64-sha256sum.txt
+        asset_name: linux-amd64-sha256sum.txt
+        asset_content_type: text/plain
+
+  publish-windows-package:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    needs: test-release
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.x
+
+    - name: Run ensure
+      run: |
+        make deps
+        make ensure
+
+    - name: Build and package windows binaries
+      run: |
+        make build-package-windows
+
+    - name: Upload Windows binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: bin/resource-advisor-windows
+        asset_name: resource-advisor-windows
+        asset_content_type: application/octet-stream
+
+    - name: Upload checksum file
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: bin/windows-sha256sum.txt
+        asset_name: windows-sha256sum.txt
+        asset_content_type: text/plain
+
+  publish-darwin-amd64-package:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    needs: test-release
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.x
+
+    - name: Run ensure
+      run: |
+        make deps
+        make ensure
+
+    - name: Build and package darwin amd64 binaries
+      run: |
+        make build-package-darwin-amd64
+
     - name: Upload MacOS amd binary
       uses: actions/upload-release-asset@v1
       env:
@@ -51,7 +143,39 @@ jobs:
         asset_name: resource-advisor-darwin-amd64
         asset_content_type: application/octet-stream
 
-    - name: Upload MacOS arm binary
+    - name: Upload checksum file
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: bin/darwin-amd64-sha256sum.txt
+        asset_name: darwin-amd64-sha256sum.txt
+        asset_content_type: text/plain
+
+  publish-darwin-arm64-package:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    needs: test-release
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.x
+
+    - name: Run ensure
+      run: |
+        make deps
+        make ensure
+
+    - name: Build and package darwin arm64 binary
+      run: |
+        make build-package-darwin-arm64
+
+    - name: Upload MacOS M1 binary
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
@@ -61,22 +185,12 @@ jobs:
         asset_name: resource-advisor-darwin-arm64
         asset_content_type: application/octet-stream
 
-    - name: Upload Windows binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: bin/resource-advisor-windows-amd64.exe
-        asset_name: resource-advisor-windows-amd64.exe
-        asset_content_type: application/octet-stream
-
     - name: Upload checksum file
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: bin/sha256sum.txt
-        asset_name: sha256sum.txt
+        asset_path: bin/darwin-arm64-sha256sum.txt
+        asset_name: darwin-arm64-sha256sum.txt
         asset_content_type: text/plain

@@ -6,9 +6,9 @@ on:
     - main
 
 jobs:
-  build-master:
+  test-master:
     runs-on: self-hosted
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
     - uses: actions/checkout@v2
       with:
@@ -27,13 +27,90 @@ jobs:
       run: |
         make test
 
-    - name: Build and package binaries
-      run: |
-        make build-all-packaged
-
-    - uses: elisa-actions/release-drafter@v5
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-linux-package:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    needs: test-master
+    steps:
+    - uses: actions/checkout@v2
       with:
-        disable-releaser: false
-        disable-autolabeler: true
+        fetch-depth: 0
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.x
+
+    - name: Run ensure
+      run: |
+        make deps
+        make ensure
+
+    - name: Build and package linux binaries
+      run: |
+        make build-package-linux-amd64
+
+  publish-windows-package:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    needs: test-master
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.x
+
+    - name: Run ensure
+      run: |
+        make deps
+        make ensure
+
+    - name: Build and package windows binaries
+      run: |
+        make build-package-windows
+
+  publish-darwin-amd64-package:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    needs: test-master
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.x
+
+    - name: Run ensure
+      run: |
+        make deps
+        make ensure
+
+    - name: Build and package darwin amd64 binaries
+      run: |
+        make build-package-darwin-amd64
+
+  publish-darwin-arm64-package:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    needs: test-master
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.x
+
+    - name: Run ensure
+      run: |
+        make deps
+        make ensure
+
+    - name: Build and package darwin arm64 binary
+      run: |
+        make build-package-darwin-arm64
