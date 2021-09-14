@@ -50,14 +50,14 @@ build-windows: prepare-build
 package-binaries:
 	upx --brute bin/resource-advisor-*
 
-build-and-package-linux-amd64: build-linux-amd64 package-binaries
+build-package-linux-amd64: build-linux-amd64 package-binaries
 	cd bin && sha256sum -b resource-advisor-linux-amd64 > linux-amd64-sha256sum.txt
 
-build-and-package-windows: build-windows package-binaries
+build-package-windows: build-windows package-binaries
 	cd bin && sha256sum -b resource-advisor-windows-amd64.exe > windows-sha256sum.txt
 
-build-and-package-darwin-amd64: build-darwin-amd64 package-binaries
+build-package-darwin-amd64: build-darwin-amd64 package-binaries
 	cd bin && sha256sum -b resource-advisor-darwin-amd64 > darwin-amd64-sha256sum.txt
 
-build-and-package-darwin-arm64: build-darwin-arm64 package-binaries
+build-package-darwin-arm64: build-darwin-arm64 package-binaries
 	cd bin && sha256sum -b resource-advisor-darwin-arm64 > darwin-arm64-sha256sum.txt
