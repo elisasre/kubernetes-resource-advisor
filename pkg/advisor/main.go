@@ -13,25 +13,28 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func Run(o *Options) error {
+// Run executes the resource advisor
+func Run(o *Options) (*Response, error) {
 	var err error
-	o.client, err = newClientSet()
-	if err != nil {
-		return err
+	if o.Client == nil {
+		o.Client, err = newClientSet()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	o.promClient, err = makePrometheusClientForCluster()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	ctx := context.Background()
 
 	if o.NamespaceSelector != "" {
-		namespaces, err := o.client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{
+		namespaces, err := o.Client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{
 			LabelSelector: o.NamespaceSelector,
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		strNamespace := []string{}
@@ -44,7 +47,7 @@ func Run(o *Options) error {
 	} else {
 		_, namespace, err := findConfig()
 		if err != nil {
-			return err
+			return nil, err
 		}
 		o.Namespaces = namespace
 	}
@@ -58,37 +61,37 @@ func Run(o *Options) error {
 	totalCPUSave := float64(0.00)
 	totalMemSave := float64(0.00)
 	for _, namespace := range strings.Split(o.Namespaces, ",") {
-		deployments, err := o.client.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
+		deployments, err := o.Client.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		for _, deployment := range deployments.Items {
 			selector, err := metav1.LabelSelectorAsSelector(deployment.Spec.Selector)
 			if err != nil {
-				return err
+				return nil, err
 			}
 
-			replicasets, err := o.client.AppsV1().ReplicaSets(deployment.Namespace).List(ctx, metav1.ListOptions{
+			replicasets, err := o.Client.AppsV1().ReplicaSets(deployment.Namespace).List(ctx, metav1.ListOptions{
 				LabelSelector: selector.String(),
 			})
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			replicaset, err := findReplicaset(replicasets, deployment)
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			selector, err = metav1.LabelSelectorAsSelector(replicaset.Spec.Selector)
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			final, err := o.findPods(ctx, deployment.Namespace, selector.String())
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			cpuSave := float64(0.00)
@@ -98,20 +101,20 @@ func Run(o *Options) error {
 			totalMemSave += memSave
 		}
 
-		statefulSets, err := o.client.AppsV1().StatefulSets(namespace).List(ctx, metav1.ListOptions{})
+		statefulSets, err := o.Client.AppsV1().StatefulSets(namespace).List(ctx, metav1.ListOptions{})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		for _, statefulSet := range statefulSets.Items {
 			selector, err := metav1.LabelSelectorAsSelector(statefulSet.Spec.Selector)
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			final, err := o.findPods(ctx, statefulSet.Namespace, selector.String())
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			cpuSave := float64(0.00)
@@ -121,20 +124,20 @@ func Run(o *Options) error {
 			totalMemSave += memSave
 		}
 
-		daemonSets, err := o.client.AppsV1().DaemonSets(namespace).List(ctx, metav1.ListOptions{})
+		daemonSets, err := o.Client.AppsV1().DaemonSets(namespace).List(ctx, metav1.ListOptions{})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		for _, daemonSets := range daemonSets.Items {
 			selector, err := metav1.LabelSelectorAsSelector(daemonSets.Spec.Selector)
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			final, err := o.findPods(ctx, daemonSets.Namespace, selector.String())
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			cpuSave := float64(0.00)
@@ -155,15 +158,18 @@ func Run(o *Options) error {
 	fmt.Printf("Total savings:\n")
 
 	totalMem := int64(totalMemSave)
-	totalMemStr := ByteCountSI(totalMem)
+	totalMemStr := byteCountSI(totalMem)
 	if totalMem < 0 {
 		totalMem *= -1
-		totalMemStr = ByteCountSI(totalMem)
+		totalMemStr = byteCountSI(totalMem)
 		totalMemStr = fmt.Sprintf("-%s", totalMemStr)
 	}
 	fmt.Printf("You could save %.2f vCPUs and %s Memory by changing the settings\n", totalCPUSave, totalMemStr)
-
-	return nil
+	return &Response{
+		Data:    data,
+		CPUSave: totalCPUSave,
+		MemSave: totalMem,
+	}, nil
 }
 
 func currentValue(resources v1.ResourceRequirements, method string, resource v1.ResourceName, current int, format apresource.Format) (float64, string) {
@@ -190,25 +196,25 @@ func (o *Options) analyzeDaemonSet(data [][]string, daemonset appsv1.DaemonSet, 
 	totalCPUSavings := float64(0.00)
 	totalMemSavings := float64(0.00)
 	for _, container := range daemonset.Spec.Template.Spec.Containers {
-		reqCpu := int(finalMetrics.RequestCPU[container.Name] * 1000)
+		reqCPU := int(finalMetrics.RequestCPU[container.Name] * 1000)
 		reqMem := int(finalMetrics.RequestMem[container.Name])
-		limCpu := int(finalMetrics.LimitCPU[container.Name] * 1000)
+		limCPU := int(finalMetrics.LimitCPU[container.Name] * 1000)
 		limMem := int(finalMetrics.LimitMem[container.Name])
 
-		reqCpuSave, strReqCPU := currentValue(container.Resources, "request", v1.ResourceCPU, reqCpu, apresource.DecimalSI)
+		reqCPUSave, strReqCPU := currentValue(container.Resources, "request", v1.ResourceCPU, reqCPU, apresource.DecimalSI)
 		reqMemSave, strReqMem := currentValue(container.Resources, "request", v1.ResourceMemory, reqMem, apresource.BinarySI)
-		_, strLimCPU := currentValue(container.Resources, "limit", v1.ResourceCPU, limCpu, apresource.DecimalSI)
+		_, strLimCPU := currentValue(container.Resources, "limit", v1.ResourceCPU, limCPU, apresource.DecimalSI)
 		_, strLimMem := currentValue(container.Resources, "limit", v1.ResourceMemory, limMem, apresource.BinarySI)
 
-		totalCPUSavings += reqCpuSave * float64(daemonset.Status.DesiredNumberScheduled)
+		totalCPUSavings += reqCPUSave * float64(daemonset.Status.DesiredNumberScheduled)
 		totalMemSavings += reqMemSave * float64(daemonset.Status.DesiredNumberScheduled)
 		data = append(data, []string{
 			daemonset.Namespace,
 			fmt.Sprintf("daemonset/%s", daemonset.Name),
 			container.Name,
-			fmt.Sprintf("%dm (%s)", reqCpu, strReqCPU),
+			fmt.Sprintf("%dm (%s)", reqCPU, strReqCPU),
 			fmt.Sprintf("%dMi (%s)", reqMem, strReqMem),
-			fmt.Sprintf("%dm (%s)", limCpu, strLimCPU),
+			fmt.Sprintf("%dm (%s)", limCPU, strLimCPU),
 			fmt.Sprintf("%dMi (%s)", limMem, strLimMem),
 		})
 	}
@@ -219,25 +225,25 @@ func (o *Options) analyzeStatefulset(data [][]string, statefulset appsv1.Statefu
 	totalCPUSavings := float64(0.00)
 	totalMemSavings := float64(0.00)
 	for _, container := range statefulset.Spec.Template.Spec.Containers {
-		reqCpu := int(finalMetrics.RequestCPU[container.Name] * 1000)
+		reqCPU := int(finalMetrics.RequestCPU[container.Name] * 1000)
 		reqMem := int(finalMetrics.RequestMem[container.Name])
-		limCpu := int(finalMetrics.LimitCPU[container.Name] * 1000)
+		limCPU := int(finalMetrics.LimitCPU[container.Name] * 1000)
 		limMem := int(finalMetrics.LimitMem[container.Name])
 
-		reqCpuSave, strReqCPU := currentValue(container.Resources, "request", v1.ResourceCPU, reqCpu, apresource.DecimalSI)
+		reqCPUSave, strReqCPU := currentValue(container.Resources, "request", v1.ResourceCPU, reqCPU, apresource.DecimalSI)
 		reqMemSave, strReqMem := currentValue(container.Resources, "request", v1.ResourceMemory, reqMem, apresource.BinarySI)
-		_, strLimCPU := currentValue(container.Resources, "limit", v1.ResourceCPU, limCpu, apresource.DecimalSI)
+		_, strLimCPU := currentValue(container.Resources, "limit", v1.ResourceCPU, limCPU, apresource.DecimalSI)
 		_, strLimMem := currentValue(container.Resources, "limit", v1.ResourceMemory, limMem, apresource.BinarySI)
 
-		totalCPUSavings += reqCpuSave * float64(*statefulset.Spec.Replicas)
+		totalCPUSavings += reqCPUSave * float64(*statefulset.Spec.Replicas)
 		totalMemSavings += reqMemSave * float64(*statefulset.Spec.Replicas)
 		data = append(data, []string{
 			statefulset.Namespace,
 			fmt.Sprintf("statefulset/%s", statefulset.Name),
 			container.Name,
-			fmt.Sprintf("%dm (%s)", reqCpu, strReqCPU),
+			fmt.Sprintf("%dm (%s)", reqCPU, strReqCPU),
 			fmt.Sprintf("%dMi (%s)", reqMem, strReqMem),
-			fmt.Sprintf("%dm (%s)", limCpu, strLimCPU),
+			fmt.Sprintf("%dm (%s)", limCPU, strLimCPU),
 			fmt.Sprintf("%dMi (%s)", limMem, strLimMem),
 		})
 	}
@@ -248,25 +254,25 @@ func (o *Options) analyzeDeployment(data [][]string, deployment appsv1.Deploymen
 	totalCPUSavings := float64(0.00)
 	totalMemSavings := float64(0.00)
 	for _, container := range deployment.Spec.Template.Spec.Containers {
-		reqCpu := int(finalMetrics.RequestCPU[container.Name] * 1000)
+		reqCPU := int(finalMetrics.RequestCPU[container.Name] * 1000)
 		reqMem := int(finalMetrics.RequestMem[container.Name])
-		limCpu := int(finalMetrics.LimitCPU[container.Name] * 1000)
+		limCPU := int(finalMetrics.LimitCPU[container.Name] * 1000)
 		limMem := int(finalMetrics.LimitMem[container.Name])
 
-		reqCpuSave, strReqCPU := currentValue(container.Resources, "request", v1.ResourceCPU, reqCpu, apresource.DecimalSI)
+		reqCPUSave, strReqCPU := currentValue(container.Resources, "request", v1.ResourceCPU, reqCPU, apresource.DecimalSI)
 		reqMemSave, strReqMem := currentValue(container.Resources, "request", v1.ResourceMemory, reqMem, apresource.BinarySI)
-		_, strLimCPU := currentValue(container.Resources, "limit", v1.ResourceCPU, limCpu, apresource.DecimalSI)
+		_, strLimCPU := currentValue(container.Resources, "limit", v1.ResourceCPU, limCPU, apresource.DecimalSI)
 		_, strLimMem := currentValue(container.Resources, "limit", v1.ResourceMemory, limMem, apresource.BinarySI)
 
-		totalCPUSavings += reqCpuSave * float64(*deployment.Spec.Replicas)
+		totalCPUSavings += reqCPUSave * float64(*deployment.Spec.Replicas)
 		totalMemSavings += reqMemSave * float64(*deployment.Spec.Replicas)
 		data = append(data, []string{
 			deployment.Namespace,
 			fmt.Sprintf("deployment/%s", deployment.Name),
 			container.Name,
-			fmt.Sprintf("%dm (%s)", reqCpu, strReqCPU),
+			fmt.Sprintf("%dm (%s)", reqCPU, strReqCPU),
 			fmt.Sprintf("%dMi (%s)", reqMem, strReqMem),
-			fmt.Sprintf("%dm (%s)", limCpu, strLimCPU),
+			fmt.Sprintf("%dm (%s)", limCPU, strLimCPU),
 			fmt.Sprintf("%dMi (%s)", limMem, strLimMem),
 		})
 	}

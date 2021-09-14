@@ -7,6 +7,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// Options contains struct to call resource-advisor run
 type Options struct {
 	NamespaceInput    string
 	NamespaceSelector string
@@ -14,7 +15,14 @@ type Options struct {
 	Quantile          string
 	LimitMargin       string
 	promClient        *promClient
-	client            *kubernetes.Clientset
+	Client            *kubernetes.Clientset
+}
+
+// Response contains struct to get response from resource-advisor
+type Response struct {
+	Data    [][]string
+	CPUSave float64
+	MemSave int64
 }
 
 type promClient struct {
