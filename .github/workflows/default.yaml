@@ -27,6 +27,12 @@ jobs:
       run: |
         make test
 
+    - uses: elisa-actions/release-drafter@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        disable-releaser: false
+        disable-autolabeler: true
+
   build-linux-package:
     runs-on: self-hosted
     timeout-minutes: 30
