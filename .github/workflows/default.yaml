@@ -27,7 +27,7 @@ jobs:
       run: |
         make test
 
-  publish-linux-package:
+  build-linux-package:
     runs-on: self-hosted
     timeout-minutes: 30
     needs: test-master
@@ -49,7 +49,7 @@ jobs:
       run: |
         make build-package-linux-amd64
 
-  publish-windows-package:
+  build-windows-package:
     runs-on: self-hosted
     timeout-minutes: 30
     needs: test-master
@@ -71,7 +71,7 @@ jobs:
       run: |
         make build-package-windows
 
-  publish-darwin-amd64-package:
+  build-darwin-amd64-package:
     runs-on: self-hosted
     timeout-minutes: 30
     needs: test-master
@@ -93,7 +93,7 @@ jobs:
       run: |
         make build-package-darwin-amd64
 
-  publish-darwin-arm64-package:
+  build-darwin-arm64-package:
     runs-on: self-hosted
     timeout-minutes: 30
     needs: test-master
