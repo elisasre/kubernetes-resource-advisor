@@ -49,25 +49,12 @@ jobs:
       run: |
         make build-package-linux-amd64
 
-    - name: Upload Linux binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+    - name: Upload Linux binary & checksum
+      uses: softprops/action-gh-release@v1
       with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: bin/resource-advisor-linux-amd64
-        asset_name: resource-advisor-linux-amd64
-        asset_content_type: application/octet-stream
-
-    - name: Upload checksum file
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: bin/linux-amd64-sha256sum.txt
-        asset_name: linux-amd64-sha256sum.txt
-        asset_content_type: text/plain
+        files: |
+          resource-advisor-linux-amd64
+          linux-amd64-sha256sum.txt
 
   publish-windows-package:
     runs-on: self-hosted
@@ -91,25 +78,12 @@ jobs:
       run: |
         make build-package-windows
 
-    - name: Upload Windows binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+    - name: Upload windows binary & checksum
+      uses: softprops/action-gh-release@v1
       with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: bin/resource-advisor-windows
-        asset_name: resource-advisor-windows
-        asset_content_type: application/octet-stream
-
-    - name: Upload checksum file
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: bin/windows-sha256sum.txt
-        asset_name: windows-sha256sum.txt
-        asset_content_type: text/plain
+        files: |
+          resource-advisor-windows
+          windows-sha256sum.txt
 
   publish-darwin-amd64-package:
     runs-on: self-hosted
@@ -133,25 +107,12 @@ jobs:
       run: |
         make build-package-darwin-amd64
 
-    - name: Upload MacOS amd binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+    - name: Upload MacOS amd64 binary & checksum
+      uses: softprops/action-gh-release@v1
       with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: bin/resource-advisor-darwin-amd64
-        asset_name: resource-advisor-darwin-amd64
-        asset_content_type: application/octet-stream
-
-    - name: Upload checksum file
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: bin/darwin-amd64-sha256sum.txt
-        asset_name: darwin-amd64-sha256sum.txt
-        asset_content_type: text/plain
+        files: |
+          resource-advisor-darwin-amd64
+          darwin-amd64-sha256sum.txt
 
   publish-darwin-arm64-package:
     runs-on: self-hosted
@@ -175,22 +136,9 @@ jobs:
       run: |
         make build-package-darwin-arm64
 
-    - name: Upload MacOS M1 binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
+    - name: Upload MacOS arm64 binary & checksum
+      uses: softprops/action-gh-release@v1
       with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: bin/resource-advisor-darwin-arm64
-        asset_name: resource-advisor-darwin-arm64
-        asset_content_type: application/octet-stream
-
-    - name: Upload checksum file
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPLOAD_RELEASE_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: bin/darwin-arm64-sha256sum.txt
-        asset_name: darwin-arm64-sha256sum.txt
-        asset_content_type: text/plain
+        files: |
+          resource-advisor-darwin-arm64
+          darwin-arm64-sha256sum.txt
