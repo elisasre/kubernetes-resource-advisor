@@ -9,7 +9,7 @@ import (
 
 // Options contains struct to call resource-advisor run
 type Options struct {
-	NamespaceInput    string
+	usedNamespaces    string
 	NamespaceSelector string
 	Namespaces        string
 	Quantile          string
