@@ -13,8 +13,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+func (o *Options) loadDefaults() {
+	if o.Quantile == "" {
+		o.Quantile = "0.95"
+	}
+	if o.LimitMargin == "" {
+		o.LimitMargin = "1.2"
+	}
+}
+
 // Run executes the resource advisor
 func Run(o *Options) (*Response, error) {
+	o.loadDefaults()
 	var err error
 	if o.Client == nil {
 		o.Client, err = newClientSet()
@@ -41,18 +51,18 @@ func Run(o *Options) (*Response, error) {
 		for _, name := range namespaces.Items {
 			strNamespace = append(strNamespace, name.Name)
 		}
-		o.Namespaces = strings.Join(strNamespace, ",")
-	} else if o.NamespaceInput != "" {
-		o.Namespaces = o.NamespaceInput
+		o.usedNamespaces = strings.Join(strNamespace, ",")
+	} else if o.Namespaces != "" {
+		o.usedNamespaces = o.Namespaces
 	} else {
 		_, namespace, err := findConfig()
 		if err != nil {
 			return nil, err
 		}
-		o.Namespaces = namespace
+		o.usedNamespaces = namespace
 	}
 
-	fmt.Printf("Namespaces: %s\n", o.Namespaces)
+	fmt.Printf("Namespaces: %s\n", o.usedNamespaces)
 	fmt.Printf("Quantile: %s\n", o.Quantile)
 	fmt.Printf("Limit margin: %s\n", o.LimitMargin)
 
@@ -60,7 +70,7 @@ func Run(o *Options) (*Response, error) {
 
 	totalCPUSave := float64(0.00)
 	totalMemSave := float64(0.00)
-	for _, namespace := range strings.Split(o.Namespaces, ",") {
+	for _, namespace := range strings.Split(o.usedNamespaces, ",") {
 		deployments, err := o.Client.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
 		if err != nil {
 			return nil, err

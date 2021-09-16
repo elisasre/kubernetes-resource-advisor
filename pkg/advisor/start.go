@@ -35,7 +35,7 @@ func Execute() {
 		},
 	}
 
-	rootCmd.Flags().StringVar(&options.NamespaceInput, "namespaces", "", "Comma separated namespaces to be scanned")
+	rootCmd.Flags().StringVar(&options.Namespaces, "namespaces", "", "Comma separated namespaces to be scanned")
 	rootCmd.Flags().StringVar(&options.NamespaceSelector, "namespace-selector", "", "Namespace selector")
 	rootCmd.Flags().StringVar(&options.Quantile, "quantile", "0.95", "Quantile to be used")
 	rootCmd.Flags().StringVar(&options.LimitMargin, "limit-margin", "1.2", "Limit margin")

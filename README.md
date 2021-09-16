@@ -56,7 +56,7 @@ You could save 0.32 vCPUs and 102.0 MB Memory by changing the settings
 What these numbers mean? The idea of this tool is to find out `quantile` (default is 95%) CPU & memory real usage for single POD using Prometheus operator. We use that real usage value for specifying `requests`. Then there is another variable called `limit-margin` which is used for specifying `limits`. The default settings means that 95% of time the POD has quarantee for the resources, and 5% of time it uses burstable capacity between 95% -> 120% of POD maximum usage in history.
 
 
-Using namespace-selector:
+#### Using namespace-selector
 
 ```
 % kubectl advisory --namespace-selector maintainer=a_crowd_devops
@@ -79,6 +79,17 @@ Total savings:
 You could save 0.12 vCPUs and -380.6 MB Memory by changing the settings
 ```
 
+#### Using as library
+
+```
+    import "github.com/ElisaOyj/kubernetes-resource-advisor/pkg/advisor"
+
+    ...
+
+    response, err := advisor.Run(&advisor.Options{
+        Namespaces: "logging,monitoring",
+    })
+```
 
 ### Motivation
 
