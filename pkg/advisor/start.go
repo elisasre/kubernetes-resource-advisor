@@ -20,7 +20,6 @@ func init() {
 func Execute() {
 	options := &Options{}
 	flag.Lookup("logtostderr").Value.Set("true")
-	glog.Infof("Starting application...\n")
 	glog.Flush()
 	rootCmd := &cobra.Command{
 		Use:   "resource-advisor",
