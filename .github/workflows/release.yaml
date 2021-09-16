@@ -53,8 +53,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          bin/resource-advisor-linux-amd64
-          bin/linux-amd64-sha256sum.txt
+          bin/**
 
   publish-windows-package:
     runs-on: self-hosted
@@ -82,8 +81,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          bin/resource-advisor-windows
-          bin/windows-sha256sum.txt
+          bin/**
 
   publish-darwin-amd64-package:
     runs-on: self-hosted
@@ -111,8 +109,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          bin/resource-advisor-darwin-amd64
-          bin/darwin-amd64-sha256sum.txt
+          bin/**
 
   publish-darwin-arm64-package:
     runs-on: self-hosted
@@ -140,5 +137,4 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          bin/resource-advisor-darwin-arm64
-          bin/darwin-arm64-sha256sum.txt
+          bin/**

@@ -48,13 +48,13 @@ build-windows: prepare-build
 	GO111MODULE=on GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -v -o bin/$(BINARY_NAME)-windows-amd64.exe ./cmd
 
 build-package-linux-amd64: build-linux-amd64
-	cd bin && sha256sum -b resource-advisor-linux-amd64 > linux-amd64-sha256sum.txt
+	cd bin && sha256sum -b resource-advisor-linux-amd64 > resource-advisor-linux-amd64-sum.txt
 
 build-package-windows: build-windows
-	cd bin && sha256sum -b resource-advisor-windows-amd64.exe > windows-sha256sum.txt
+	cd bin && sha256sum -b resource-advisor-windows-amd64.exe > resource-advisor-windows-amd64-sum.txt
 
 build-package-darwin-amd64: build-darwin-amd64
-	cd bin && sha256sum -b resource-advisor-darwin-amd64 > darwin-amd64-sha256sum.txt
+	cd bin && sha256sum -b resource-advisor-darwin-amd64 > resource-advisor-darwin-amd64-sum.txt
 
 build-package-darwin-arm64: build-darwin-arm64
-	cd bin && sha256sum -b resource-advisor-darwin-arm64 > darwin-arm64-sha256sum.txt
+	cd bin && sha256sum -b resource-advisor-darwin-arm64 > resource-advisor-darwin-arm64-sum.txt
