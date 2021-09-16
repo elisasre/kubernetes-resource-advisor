@@ -3,7 +3,7 @@ ifeq ($(USE_JSON_OUTPUT), 1)
 GOTEST_REPORT_FORMAT := -json
 endif
 
-.PHONY: clean deps test gofmt run ensure build build-linux-amd64 build-darwin-amd64 build-darwin-arm64 build-windows build-all package-binaries build-and-package-linux-amd64 build-and-package-windows build-and-package-darwin-amd64 build-and-package-darwin-arm64
+.PHONY: clean deps test gofmt run ensure build build-linux-amd64 build-darwin-amd64 build-darwin-arm64 build-windows build-all build-and-package-linux-amd64 build-and-package-windows build-and-package-darwin-amd64 build-and-package-darwin-arm64
 
 clean:
 	git clean -Xdf
@@ -47,17 +47,14 @@ build-darwin-arm64: prepare-build
 build-windows: prepare-build
 	GO111MODULE=on GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -v -o bin/$(BINARY_NAME)-windows-amd64.exe ./cmd
 
-package-binaries:
-	upx --brute bin/resource-advisor-*
-
-build-package-linux-amd64: build-linux-amd64 package-binaries
+build-package-linux-amd64: build-linux-amd64
 	cd bin && sha256sum -b resource-advisor-linux-amd64 > linux-amd64-sha256sum.txt
 
-build-package-windows: build-windows package-binaries
+build-package-windows: build-windows
 	cd bin && sha256sum -b resource-advisor-windows-amd64.exe > windows-sha256sum.txt
 
-build-package-darwin-amd64: build-darwin-amd64 package-binaries
+build-package-darwin-amd64: build-darwin-amd64
 	cd bin && sha256sum -b resource-advisor-darwin-amd64 > darwin-amd64-sha256sum.txt
 
-build-package-darwin-arm64: build-darwin-arm64 package-binaries
+build-package-darwin-arm64: build-darwin-arm64
 	cd bin && sha256sum -b resource-advisor-darwin-arm64 > darwin-arm64-sha256sum.txt
