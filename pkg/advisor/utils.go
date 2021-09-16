@@ -286,6 +286,9 @@ func (o *Options) findPods(ctx context.Context, namespace string, selector strin
 	for k, v := range totalRequestCPU {
 		scale := 10
 		value := float64Peak(v)
+		if value < 0.01 {
+			scale = 100
+		}
 		final.RequestCPU[k] = math.Ceil(value*float64(scale)) / float64(scale)
 	}
 	for k, v := range totalRequestMem {
@@ -294,6 +297,9 @@ func (o *Options) findPods(ctx context.Context, namespace string, selector strin
 	for k, v := range totalLimitCPU {
 		scale := 10
 		value := float64Peak(v)
+		if value < 0.01 {
+			scale = 100
+		}
 		final.LimitCPU[k] = math.Ceil(value*float64(scale)) / float64(scale)
 	}
 	for k, v := range totalLimitMem {
