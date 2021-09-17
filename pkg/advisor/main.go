@@ -37,7 +37,13 @@ func Run(o *Options) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	ctx := context.Background()
+
+	o.mode, err = o.detectMode(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	if o.NamespaceSelector != "" {
 		namespaces, err := o.Client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{
@@ -65,6 +71,7 @@ func Run(o *Options) (*Response, error) {
 	fmt.Printf("Namespaces: %s\n", o.usedNamespaces)
 	fmt.Printf("Quantile: %s\n", o.Quantile)
 	fmt.Printf("Limit margin: %s\n", o.LimitMargin)
+	fmt.Printf("Using mode: %s\n", o.mode)
 
 	data := [][]string{}
 

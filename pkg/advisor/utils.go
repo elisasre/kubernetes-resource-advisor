@@ -23,8 +23,8 @@ import (
 
 const (
 	promOperatorClusterURL = "/api/v1/namespaces/monitoring/services/prometheus-operated:web/proxy/"
-	podCPURequest          = `quantile_over_time(%s, node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate{pod="%s", container!=""}[1w])`
-	podCPULimit            = `max_over_time(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate{pod="%s", container!=""}[1w]) * %s`
+	podCPURequest          = `quantile_over_time(%s, node_namespace_pod_container:container_cpu_usage_seconds_total:%s{pod="%s", container!=""}[1w])`
+	podCPULimit            = `max_over_time(node_namespace_pod_container:container_cpu_usage_seconds_total:%s{pod="%s", container!=""}[1w]) * %s`
 	podMemoryRequest       = `quantile_over_time(%s, container_memory_working_set_bytes{pod="%s", container!=""}[1w]) / 1024 / 1024`
 	podMemoryLimit         = `(max_over_time(container_memory_working_set_bytes{pod="%s", container!=""}[1w]) / 1024 / 1024) * %s`
 	deploymentRevision     = "deployment.kubernetes.io/revision"
@@ -89,12 +89,12 @@ func (o *Options) queryPrometheusForPod(ctx context.Context, client *promClient,
 	var err error
 
 	output := prometheusMetrics{}
-	output.RequestCPU, err = queryStatistic(ctx, client, fmt.Sprintf(podCPURequest, o.Quantile, pod.Name), now)
+	output.RequestCPU, err = queryStatistic(ctx, client, fmt.Sprintf(podCPURequest, o.Quantile, o.mode, pod.Name), now)
 	if err != nil {
 		return output, err
 	}
 
-	output.LimitCPU, err = queryStatistic(ctx, client, fmt.Sprintf(podCPULimit, pod.Name, o.LimitMargin), now)
+	output.LimitCPU, err = queryStatistic(ctx, client, fmt.Sprintf(podCPULimit, o.mode, pod.Name, o.LimitMargin), now)
 	if err != nil {
 		return output, err
 	}
@@ -179,6 +179,33 @@ func makePrometheusClientForCluster() (*promClient, error) {
 func queryPrometheus(ctx context.Context, client *promClient, query string, ts time.Time) (interface{}, promv1.Warnings, error) {
 	promcli := promv1.NewAPI(client)
 	return promcli.Query(ctx, query, ts)
+}
+
+func (o *Options) detectMode(ctx context.Context) (string, error) {
+	now := time.Now()
+
+	cpuUsage := `node_namespace_pod_container:container_cpu_usage_seconds_total:%s`
+
+	request := fmt.Sprintf(cpuUsage, "sum_irate")
+	response, _, err := queryPrometheus(ctx, o.promClient, request, now)
+	if err != nil {
+		return "", fmt.Errorf("Error detecting mode %v", err)
+	}
+	asSamples := response.(prommodel.Vector)
+	if len(asSamples) > 0 {
+		return "sum_irate", nil
+	}
+
+	request = fmt.Sprintf(cpuUsage, "sum_rate")
+	response, _, err = queryPrometheus(ctx, o.promClient, request, now)
+	if err != nil {
+		return "", fmt.Errorf("Error detecting mode %v", err)
+	}
+	asSamples = response.(prommodel.Vector)
+	if len(asSamples) > 0 {
+		return "sum_rate", nil
+	}
+	return "", fmt.Errorf("Could not find cpu mode")
 }
 
 func (c *promClient) URL(ep string, args map[string]string) *url.URL {
