@@ -16,6 +16,7 @@ type Options struct {
 	LimitMargin       string
 	promClient        *promClient
 	Client            *kubernetes.Clientset
+	mode              string // sum_irate or sum_rate, older prometheusrules uses sum_rate but newest uses sum_irate
 }
 
 // Response contains struct to get response from resource-advisor
