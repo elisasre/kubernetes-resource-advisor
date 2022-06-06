@@ -7,16 +7,18 @@ on:
 
 jobs:
   test-release:
-    runs-on: self-hosted
+    runs-on:
+    - self-hosted
+    - kaas
     timeout-minutes: 15
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - uses: actions/setup-go@v2
+    - uses: actions/setup-go@v3
       with:
-        go-version: 1.17.x
+        go-version: 1.18.x
 
     - name: Run ensure
       run: |
@@ -28,17 +30,19 @@ jobs:
         make test
 
   publish-linux-package:
-    runs-on: self-hosted
+    runs-on:
+    - self-hosted
+    - kaas
     timeout-minutes: 30
     needs: test-release
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - uses: actions/setup-go@v2
+    - uses: actions/setup-go@v3
       with:
-        go-version: 1.17.x
+        go-version: 1.18.x
 
     - name: Run ensure
       run: |
@@ -56,17 +60,19 @@ jobs:
           bin/**
 
   publish-windows-package:
-    runs-on: self-hosted
+    runs-on:
+    - self-hosted
+    - kaas
     timeout-minutes: 30
     needs: test-release
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - uses: actions/setup-go@v2
+    - uses: actions/setup-go@v3
       with:
-        go-version: 1.17.x
+        go-version: 1.18.x
 
     - name: Run ensure
       run: |
@@ -84,17 +90,19 @@ jobs:
           bin/**
 
   publish-darwin-amd64-package:
-    runs-on: self-hosted
+    runs-on:
+    - self-hosted
+    - kaas
     timeout-minutes: 30
     needs: test-release
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - uses: actions/setup-go@v2
+    - uses: actions/setup-go@v3
       with:
-        go-version: 1.17.x
+        go-version: 1.18.x
 
     - name: Run ensure
       run: |
@@ -112,17 +120,19 @@ jobs:
           bin/**
 
   publish-darwin-arm64-package:
-    runs-on: self-hosted
+    runs-on:
+    - self-hosted
+    - kaas
     timeout-minutes: 30
     needs: test-release
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - uses: actions/setup-go@v2
+    - uses: actions/setup-go@v3
       with:
-        go-version: 1.17.x
+        go-version: 1.18.x
 
     - name: Run ensure
       run: |
