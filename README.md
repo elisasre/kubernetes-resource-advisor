@@ -6,13 +6,13 @@
 export PLUGIN_VERSION=1.0.5
 
 # MacOS (x86_64)
-curl -sLo /usr/local/bin/kubectl-advisory https://github.com/ElisaOyj/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-darwin-amd64
+curl -sLo /usr/local/bin/kubectl-advisory https://github.com/elisasre/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-darwin-amd64
 
 # MacOS (M1)
-curl -sLo /usr/local/bin/kubectl-advisory https://github.com/ElisaOyj/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-darwin-arm64
+curl -sLo /usr/local/bin/kubectl-advisory https://github.com/elisasre/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-darwin-arm64
 
 # Linux (x86_64)
-curl -sLo /usr/local/bin/kubectl-advisory https://github.com/ElisaOyj/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-linux-amd64
+curl -sLo /usr/local/bin/kubectl-advisory https://github.com/elisasre/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-linux-amd64
 
 # All
 chmod 755 /usr/local/bin/kubectl-advisory
@@ -82,7 +82,7 @@ You could save 0.12 vCPUs and -380.6 MB Memory by changing the settings
 #### Using as library
 
 ```
-    import "github.com/ElisaOyj/kubernetes-resource-advisor/pkg/advisor"
+    import "github.com/elisasre/kubernetes-resource-advisor/pkg/advisor"
 
     ...
 
