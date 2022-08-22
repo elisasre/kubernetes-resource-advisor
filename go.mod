@@ -9,7 +9,7 @@ require (
 	github.com/prometheus/common v0.37.0
 	github.com/spf13/cobra v1.5.0
 	k8s.io/api v0.24.3
-	k8s.io/apimachinery v0.24.3
+	k8s.io/apimachinery v0.24.4
 	k8s.io/client-go v0.24.3
 )
 
