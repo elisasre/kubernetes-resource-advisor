@@ -34,3 +34,18 @@ jobs:
     - name: Build golang binary
       run: |
         make build
+
+  automerge:
+    needs: [build]
+    permissions:
+      pull-requests: write
+      contents: write
+    runs-on:
+      - self-hosted
+      - kaas
+    timeout-minutes: 15
+    steps:
+      - name: Automerge dependabot PR
+        uses: elisa-actions/github-action-merge-dependabot@v3
+        with:
+          target: minor
