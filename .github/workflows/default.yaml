@@ -59,7 +59,7 @@ jobs:
         go-version: ${{ steps.version.outputs.GO_VERSION }}
 
     - name: Run ensure
-      run: go-ensure
+      run: make go-ensure
 
     - name: Build and package binaries
       run: make build-subset
