@@ -33,7 +33,7 @@ jobs:
     - name: Run test
       run: make go-unit-test
 
-  build-and-publishpackages:
+  build-and-publish-packages:
     runs-on:
     - self-hosted
     - kaas
