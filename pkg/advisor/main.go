@@ -8,7 +8,7 @@ import (
 
 	"github.com/olekukonko/tablewriter"
 	appsv1 "k8s.io/api/apps/v1"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	apresource "k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -111,8 +111,8 @@ func Run(o *Options) (*Response, error) {
 				return nil, err
 			}
 
-			cpuSave := float64(0.00)
-			memSave := float64(0.00)
+			var cpuSave float64
+			var memSave float64
 			data, cpuSave, memSave = o.analyzeDeployment(data, deployment, final)
 			totalCPUSave += cpuSave
 			totalMemSave += memSave
@@ -134,8 +134,8 @@ func Run(o *Options) (*Response, error) {
 				return nil, err
 			}
 
-			cpuSave := float64(0.00)
-			memSave := float64(0.00)
+			var cpuSave float64
+			var memSave float64
 			data, cpuSave, memSave = o.analyzeStatefulset(data, statefulSet, final)
 			totalCPUSave += cpuSave
 			totalMemSave += memSave
@@ -157,8 +157,8 @@ func Run(o *Options) (*Response, error) {
 				return nil, err
 			}
 
-			cpuSave := float64(0.00)
-			memSave := float64(0.00)
+			var cpuSave float64
+			var memSave float64
 			data, cpuSave, memSave = o.analyzeDaemonSet(data, daemonSets, final)
 			totalCPUSave += cpuSave
 			totalMemSave += memSave

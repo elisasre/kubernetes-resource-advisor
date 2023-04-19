@@ -14,7 +14,7 @@ import (
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prommodel "github.com/prometheus/common/model"
 	appsv1 "k8s.io/api/apps/v1"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -110,14 +110,6 @@ func (o *Options) queryPrometheusForPod(ctx context.Context, client *promClient,
 	}
 
 	return output, nil
-}
-
-func float64Average(input []float64) float64 {
-	var sum float64
-	for _, value := range input {
-		sum += value
-	}
-	return sum / float64(len(input))
 }
 
 func float64Peak(input []float64) float64 {
