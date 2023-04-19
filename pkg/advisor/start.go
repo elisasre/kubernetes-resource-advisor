@@ -10,16 +10,16 @@ import (
 )
 
 func init() {
-	flag.Set("logtostderr", "true")
+	_ = flag.Set("logtostderr", "true")
 	// hack to make flag.Parsed return true such that glog is happy
 	// about the flags having been parsed
-	flag.CommandLine.Parse([]string{})
+	_ = flag.CommandLine.Parse([]string{})
 }
 
 // Execute will execute basically the whole application
 func Execute() {
 	options := &Options{}
-	flag.Lookup("logtostderr").Value.Set("true")
+	_ = flag.Lookup("logtostderr").Value.Set("true")
 	glog.Flush()
 	rootCmd := &cobra.Command{
 		Use:   "resource-advisor",

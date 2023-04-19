@@ -31,14 +31,6 @@ type promClient struct {
 	client   *http.Client
 }
 
-type suggestion struct {
-	OldValue  float64
-	NewValue  float64
-	Pod       string
-	Container string
-	Message   string
-}
-
 type prometheusMetrics struct {
 	LimitCPU   map[string]float64
 	LimitMem   map[string]float64
