@@ -35,7 +35,7 @@ CONTAINER_PLATFORMS	:= linux/amd64 linux/arm64 darwin/amd64 darwin/arm64
 
 # Tools that can be installed with `go install` command.
 GOLANGCI_LINT_V		?= v1.52.2
-SWAG_V				?= v1.8.10
+SWAG_V				?= v1.8.12
 GO_LICENSES_V		?= v1.6.0
 GOVULNCHECK_V		?= latest
 COVMERGE_V			?= master
