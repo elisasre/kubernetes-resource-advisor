@@ -2,7 +2,7 @@
 export APP_NAME 			:= resource-advisor
 
 # Download wanted go.mk version automatically if not present.
-BASE_VERSION  := 1037afc
+BASE_VERSION  := 5493270
 BASE_MAKE     := go-${BASE_VERSION}.mk
 ifeq ($(wildcard ${BASE_MAKE}),)
 $(shell gh api -H 'Accept: application/vnd.github.v3.raw' 'repos/elisasre/baseconfig/contents/go.mk?ref=${BASE_VERSION}' > ${BASE_MAKE})
