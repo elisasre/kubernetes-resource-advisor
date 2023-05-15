@@ -128,9 +128,14 @@ go-license-report: ${GOGET_GO_LICENSES} ## Generate Go license report
 go-swagger: ${GOGET_SWAG} ## Run swagger generator
 	${GOGET_SWAG} init ${SWAG_FLAGS}
 
-go-ensure: ${GO} ## Tidy and vendor Go dependencies
-	${GO} mod tidy
+go-ensure: ${GO} go-tidy ## Tidy and vendor Go dependencies
 	${GO} mod vendor
+
+go-tidy: ${GO} ## Tidy Go dependencies
+	${GO} mod tidy
+
+go-verify-mod-files: go-tidy ## Verify that tidy didn't modify deps
+	git diff --exit-code -- go.mod go.sum
 
 go-unit-test: ${GO} ## Run Go unit tests
 	$(if $(dir ${GO_UNIT_COV_FILE}),$(shell mkdir -p $(dir ${GO_UNIT_COV_FILE})))
