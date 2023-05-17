@@ -128,9 +128,6 @@ go-license-report: ${GOGET_GO_LICENSES} ## Generate Go license report
 go-swagger: ${GOGET_SWAG} ## Run swagger generator
 	${GOGET_SWAG} init ${SWAG_FLAGS}
 
-go-ensure: ${GO} go-tidy ## Tidy and vendor Go dependencies
-	${GO} mod vendor
-
 go-tidy: ${GO} ## Tidy Go dependencies
 	${GO} mod tidy
 
