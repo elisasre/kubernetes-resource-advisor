@@ -35,10 +35,10 @@ func Execute() {
 		},
 	}
 
-	rootCmd.Flags().StringVar(&options.Namespaces, "namespaces", "", "Comma separated namespaces to be scanned")
-	rootCmd.Flags().StringVar(&options.NamespaceSelector, "namespace-selector", "", "Namespace selector")
-	rootCmd.Flags().StringVar(&options.Quantile, "quantile", "0.95", "Quantile to be used")
-	rootCmd.Flags().StringVar(&options.LimitMargin, "limit-margin", "1.2", "Limit margin")
+	rootCmd.Flags().StringVarP(&options.Namespaces, "namespaces", "n", "", "Comma separated namespaces to be scanned")
+	rootCmd.Flags().StringVarP(&options.NamespaceSelector, "namespace-selector", "l", "", "Namespace selector")
+	rootCmd.Flags().StringVarP(&options.Quantile, "quantile", "q", "0.95", "Quantile to be used")
+	rootCmd.Flags().StringVarP(&options.LimitMargin, "limit-margin", "m", "1.2", "Limit margin")
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

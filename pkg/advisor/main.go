@@ -33,12 +33,22 @@ func Run(o *Options) (*Response, error) {
 		}
 	}
 
-	o.promClient, err = makePrometheusClientForCluster()
+	ctx := context.Background()
+
+	prom_service, err := o.Client.CoreV1().Services("").List(ctx, metav1.ListOptions{
+		LabelSelector: "operated-prometheus=true",
+	})
 	if err != nil {
 		return nil, err
 	}
+	if len(prom_service.Items) == 0 {
+		return nil, fmt.Errorf("Prometheus-operator not detected!")
+	}
 
-	ctx := context.Background()
+	o.promClient, err = makePrometheusClientForCluster(prom_service.Items[0].Namespace)
+	if err != nil {
+		return nil, err
+	}
 
 	o.mode, err = o.detectMode(ctx)
 	if err != nil {
