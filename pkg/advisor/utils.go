@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	promOperatorClusterURL = "/api/v1/namespaces/monitoring/services/prometheus-operated:web/proxy/"
+	promOperatorClusterURL = "%s/api/v1/namespaces/%s/services/prometheus-operated:web/proxy/"
 	podCPURequest          = `quantile_over_time(%s, node_namespace_pod_container:container_cpu_usage_seconds_total:%s{pod="%s", container!=""}[1w])`
 	podCPULimit            = `max_over_time(node_namespace_pod_container:container_cpu_usage_seconds_total:%s{pod="%s", container!=""}[1w]) * %s`
 	podMemoryRequest       = `quantile_over_time(%s, container_memory_working_set_bytes{pod="%s", container!=""}[1w]) / 1024 / 1024`
@@ -136,13 +136,13 @@ func findReplicaset(replicasets *appsv1.ReplicaSetList, dep appsv1.Deployment) (
 	return nil, fmt.Errorf("could not find replicaset for deployment '%s' gen '%v'", dep.Name, generation)
 }
 
-func makePrometheusClientForCluster() (*promClient, error) {
+func makePrometheusClientForCluster(namespace string) (*promClient, error) {
 	config, _, err := findConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	promurl := fmt.Sprintf("%s%s", config.Host, promOperatorClusterURL)
+	promurl := fmt.Sprintf(promOperatorClusterURL, config.Host, namespace)
 	transport, err := rest.TransportFor(config)
 	if err != nil {
 		return nil, err

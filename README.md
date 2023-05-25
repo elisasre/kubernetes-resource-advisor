@@ -20,6 +20,10 @@ chmod 755 /usr/local/bin/kubectl-advisory
 
 You need to store the binary under PATH to make it usable as kubectl plugin.
 
+### Requirements
+
+The [prometheus-operator](https://github.com/prometheus-operator/prometheus-operator) is required in the target Kubernetes cluster to provide necessary metrics.
+
 ### Usage
 
 ```
