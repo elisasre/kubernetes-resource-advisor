@@ -41,11 +41,12 @@ func Run(o *Options) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(prom_service.Items) == 0 {
-		return nil, fmt.Errorf("Prometheus-operator not detected!")
+	if len(prom_service.Items) == 0 || len(prom_service.Items[0].Spec.Ports) == 0 {
+		return nil, fmt.Errorf("prometheus-operator not detected!")
+
 	}
 
-	o.promClient, err = makePrometheusClientForCluster(prom_service.Items[0].Namespace)
+	o.promClient, err = makePrometheusClientForCluster(prom_service.Items[0].Namespace, prom_service.Items[0].Spec.Ports[0].Name)
 	if err != nil {
 		return nil, err
 	}

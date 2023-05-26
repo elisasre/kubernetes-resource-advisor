@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	promOperatorClusterURL = "%s/api/v1/namespaces/%s/services/prometheus-operated:web/proxy/"
+	promOperatorClusterURL = "%s/api/v1/namespaces/%s/services/prometheus-operated:%s/proxy/"
 	podCPURequest          = `quantile_over_time(%s, node_namespace_pod_container:container_cpu_usage_seconds_total:%s{pod="%s", container!=""}[1w])`
 	podCPULimit            = `max_over_time(node_namespace_pod_container:container_cpu_usage_seconds_total:%s{pod="%s", container!=""}[1w]) * %s`
 	podMemoryRequest       = `quantile_over_time(%s, container_memory_working_set_bytes{pod="%s", container!=""}[1w]) / 1024 / 1024`
@@ -58,7 +58,7 @@ func queryStatistic(ctx context.Context, client *promClient, request string, now
 	output := make(map[string]float64)
 	response, _, err := queryPrometheus(ctx, client, request, now)
 	if err != nil {
-		return output, fmt.Errorf("Error querying statistic %v", err)
+		return output, fmt.Errorf("error querying statistic %v", err)
 	}
 	asSamples := response.(prommodel.Vector)
 
@@ -136,13 +136,13 @@ func findReplicaset(replicasets *appsv1.ReplicaSetList, dep appsv1.Deployment) (
 	return nil, fmt.Errorf("could not find replicaset for deployment '%s' gen '%v'", dep.Name, generation)
 }
 
-func makePrometheusClientForCluster(namespace string) (*promClient, error) {
+func makePrometheusClientForCluster(namespace string, portname string) (*promClient, error) {
 	config, _, err := findConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	promurl := fmt.Sprintf(promOperatorClusterURL, config.Host, namespace)
+	promurl := fmt.Sprintf(promOperatorClusterURL, config.Host, namespace, portname)
 	transport, err := rest.TransportFor(config)
 	if err != nil {
 		return nil, err
@@ -181,7 +181,7 @@ func (o *Options) detectMode(ctx context.Context) (string, error) {
 	request := fmt.Sprintf(cpuUsage, "sum_irate")
 	response, _, err := queryPrometheus(ctx, o.promClient, request, now)
 	if err != nil {
-		return "", fmt.Errorf("Error detecting mode %v", err)
+		return "", fmt.Errorf("error detecting mode %v", err)
 	}
 	asSamples := response.(prommodel.Vector)
 	if len(asSamples) > 0 {
@@ -191,13 +191,13 @@ func (o *Options) detectMode(ctx context.Context) (string, error) {
 	request = fmt.Sprintf(cpuUsage, "sum_rate")
 	response, _, err = queryPrometheus(ctx, o.promClient, request, now)
 	if err != nil {
-		return "", fmt.Errorf("Error detecting mode %v", err)
+		return "", fmt.Errorf("error detecting mode %v", err)
 	}
 	asSamples = response.(prommodel.Vector)
 	if len(asSamples) > 0 {
 		return "sum_rate", nil
 	}
-	return "", fmt.Errorf("Could not find cpu mode")
+	return "", fmt.Errorf("could not find cpu mode")
 }
 
 func (c *promClient) URL(ep string, args map[string]string) *url.URL {

@@ -2,8 +2,8 @@
 
 ### Installation
 
-```
-export PLUGIN_VERSION=1.0.5
+```bash
+export PLUGIN_VERSION=1.1.0
 
 # MacOS (x86_64)
 curl -sLo /usr/local/bin/kubectl-advisory https://github.com/elisasre/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-darwin-amd64
@@ -26,9 +26,8 @@ The [prometheus-operator](https://github.com/prometheus-operator/prometheus-oper
 
 ### Usage
 
-```
-kubectl advisory --help
-I0916 13:28:02.492261   96935 start.go:23] Starting application...
+```bash
+% kubectl advisory --help
 Kubernetes resource-advisor
 
 Usage:
@@ -36,38 +35,37 @@ Usage:
 
 Flags:
   -h, --help                        help for resource-advisor
-      --limit-margin string         Limit margin (default "1.2")
-      --namespace-selector string   Namespace selector
-      --namespaces string           Comma separated namespaces to be scanned
-      --quantile string             Quantile to be used (default "0.95")
+  -m, --limit-margin string         Limit margin (default "1.2")
+  -l, --namespace-selector string   Namespace selector
+  -n, --namespaces string           Comma separated namespaces to be scanned
+  -q, --quantile string             Quantile to be used (default "0.95")
 ```
 
-```
+```bash
 % kubectl advisory
-I0916 13:26:56.442083   96863 start.go:23] Starting application...
 Namespaces: logging
 Quantile: 0.95
 Limit margin: 1.2
+Using mode: sum_irate
 +-----------+----------------------+------------+--------------------+--------------------+------------------+------------------+
 | NAMESPACE |       RESOURCE       | CONTAINER  | REQUEST CPU (SPEC) | REQUEST MEM (SPEC) | LIMIT CPU (SPEC) | LIMIT MEM (SPEC) |
 +-----------+----------------------+------------+--------------------+--------------------+------------------+------------------+
-| logging   | daemonset/fluent-bit | fluent-bit | 10m (25m)          | 100Mi (100Mi)      | 100m (400m)      | 100Mi (200Mi)    |
+| logging   | daemonset/fluent-bit | fluent-bit | 10m (25m)          | 100Mi (100Mi)      | 100m (400m)      | 200Mi (200Mi)    |
 +-----------+----------------------+------------+--------------------+--------------------+------------------+------------------+
 Total savings:
-You could save 0.32 vCPUs and 102.0 MB Memory by changing the settings
+You could save 0.27 vCPUs and 87.4 MB Memory by changing the settings
 ```
 
 What these numbers mean? The idea of this tool is to find out `quantile` (default is 95%) CPU & memory real usage for single POD using Prometheus operator. We use that real usage value for specifying `requests`. Then there is another variable called `limit-margin` which is used for specifying `limits`. The default settings means that 95% of time the POD has quarantee for the resources, and 5% of time it uses burstable capacity between 95% -> 120% of POD maximum usage in history.
 
-
 #### Using namespace-selector
 
-```
+```bash
 % kubectl advisory --namespace-selector maintainer=a_crowd_devops
-I0916 14:37:52.758305    5980 start.go:23] Starting application...
 Namespaces: actions-runner-system,cert-manager,default,gha,kaas-test-infra
 Quantile: 0.95
 Limit margin: 1.2
+Using mode: sum_irate
 +-----------------------+-------------------------------------------------+-----------------+--------------------+--------------------+------------------+------------------+
 |       NAMESPACE       |                    RESOURCE                     |    CONTAINER    | REQUEST CPU (SPEC) | REQUEST MEM (SPEC) | LIMIT CPU (SPEC) | LIMIT MEM (SPEC) |
 +-----------------------+-------------------------------------------------+-----------------+--------------------+--------------------+------------------+------------------+
@@ -85,14 +83,12 @@ You could save 0.12 vCPUs and -380.6 MB Memory by changing the settings
 
 #### Using as library
 
-```
-    import "github.com/elisasre/kubernetes-resource-advisor/pkg/advisor"
+```go
+import "github.com/elisasre/kubernetes-resource-advisor/pkg/advisor"
 
-    ...
-
-    response, err := advisor.Run(&advisor.Options{
-        Namespaces: "logging,monitoring",
-    })
+response, err := advisor.Run(&advisor.Options{
+    Namespaces: "logging,monitoring",
+})
 ```
 
 ### Motivation
