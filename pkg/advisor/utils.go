@@ -58,7 +58,7 @@ func queryStatistic(ctx context.Context, client *promClient, request string, now
 	output := make(map[string]float64)
 	response, _, err := queryPrometheus(ctx, client, request, now)
 	if err != nil {
-		return output, fmt.Errorf("Error querying statistic %v", err)
+		return output, fmt.Errorf("error querying statistic %v", err)
 	}
 	asSamples := response.(prommodel.Vector)
 
@@ -181,7 +181,7 @@ func (o *Options) detectMode(ctx context.Context) (string, error) {
 	request := fmt.Sprintf(cpuUsage, "sum_irate")
 	response, _, err := queryPrometheus(ctx, o.promClient, request, now)
 	if err != nil {
-		return "", fmt.Errorf("Error detecting mode %v", err)
+		return "", fmt.Errorf("error detecting mode %v", err)
 	}
 	asSamples := response.(prommodel.Vector)
 	if len(asSamples) > 0 {
@@ -191,13 +191,13 @@ func (o *Options) detectMode(ctx context.Context) (string, error) {
 	request = fmt.Sprintf(cpuUsage, "sum_rate")
 	response, _, err = queryPrometheus(ctx, o.promClient, request, now)
 	if err != nil {
-		return "", fmt.Errorf("Error detecting mode %v", err)
+		return "", fmt.Errorf("error detecting mode %v", err)
 	}
 	asSamples = response.(prommodel.Vector)
 	if len(asSamples) > 0 {
 		return "sum_rate", nil
 	}
-	return "", fmt.Errorf("Could not find cpu mode")
+	return "", fmt.Errorf("could not find cpu mode")
 }
 
 func (c *promClient) URL(ep string, args map[string]string) *url.URL {
