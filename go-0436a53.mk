@@ -3,7 +3,7 @@
 COMMA := ,
 SPACE := $(subst ,, )
 
-GO_VERSION	?= 1.20.4
+GO_VERSION	?= 1.20.5
 TOOLS_DIR	:= .tools
 GO 			:= ${TOOLS_DIR}/go/go${GO_VERSION}
 
