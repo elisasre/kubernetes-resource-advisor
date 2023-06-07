@@ -3,7 +3,7 @@
 COMMA := ,
 SPACE := $(subst ,, )
 
-GO_VERSION	?= 1.20.4
+GO_VERSION	?= 1.20.5
 TOOLS_DIR	:= .tools
 GO 			:= ${TOOLS_DIR}/go/go${GO_VERSION}
 
@@ -34,7 +34,7 @@ BUILD_OUTPUT		= target/bin/${GOOS}/${GOARCH}/${APP_NAME}
 CONTAINER_PLATFORMS	:= linux/amd64 linux/arm64 darwin/amd64 darwin/arm64
 
 # Tools that can be installed with `go install` command.
-GOLANGCI_LINT_V		?= v1.52.2
+GOLANGCI_LINT_V		?= v1.53.2
 SWAG_V				?= v1.8.12
 GO_LICENSES_V		?= v1.6.0
 GOVULNCHECK_V		?= latest
@@ -53,7 +53,6 @@ BIN_PATH	= ${PWD}/${@D}
 BIN_NAME	= $(if $(filter ${LAST_PART},$(MAJOR_VER)),$(notdir ${BIN_PATH}),${LAST_PART})
 
 ## Variables that can be overwritten by parent makefile via env.
-
 # Common variables
 APP_NAME			?=
 LAST_COMMIT_SHA		?= $(shell git rev-parse HEAD)
