@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/golang/glog v1.1.1
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/prometheus/client_golang v1.15.1
+	github.com/prometheus/client_golang v1.16.0
 	github.com/prometheus/common v0.44.0
 	github.com/spf13/cobra v1.7.0
 	k8s.io/api v0.27.2
