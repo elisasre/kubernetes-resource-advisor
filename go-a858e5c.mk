@@ -10,11 +10,9 @@ GO 			:= ${TOOLS_DIR}/go/go${GO_VERSION}
 # If wanted version of Go isn't installed yet we use sane defaults.
 # This will allow us to trigger Go installation without error messages when these variables are evaluated.
 ifneq ($(wildcard ${GO}),)
-GO_BUILD_MATRIX		:= $(shell ${GO} tool dist list)
 SYS_GOOS			:= $(shell ${GO} env GOOS)
 SYS_GOARCH			:= $(shell ${GO} env GOARCH)
 else
-GO_BUILD_MATRIX		:= linux/amd64 linux/arm64 darwin/amd64 darwin/arm64
 ifeq ($(shell uname -s),Darwin)
 SYS_GOOS			:= darwin
 else
@@ -27,6 +25,7 @@ SYS_GOARCH			:= amd64
 endif
 endif
 
+GO_BUILD_MATRIX		:= linux/amd64 linux/arm64 darwin/amd64 darwin/arm64
 GO_BUILD_TARGETS	:= ${GO_BUILD_MATRIX:%=go-build/%}
 GOARCH				= $(notdir ${*})
 GOOS				= ${*:%/${GOARCH}=%}
