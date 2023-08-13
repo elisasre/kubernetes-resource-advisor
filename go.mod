@@ -3,7 +3,7 @@ module github.com/elisasre/kubernetes-resource-advisor
 go 1.18
 
 require (
-	github.com/golang/glog v1.1.1
+	github.com/golang/glog v1.1.2
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/prometheus/client_golang v1.16.0
 	github.com/prometheus/common v0.44.0
