@@ -11,6 +11,9 @@ jobs:
     - self-hosted
     - kaas
     timeout-minutes: 15
+    permissions:
+      id-token: write
+      contents: read
     steps:
     - uses: actions/checkout@v3
       with:
@@ -29,6 +32,11 @@ jobs:
 
     - name: Run test
       run: make go-unit-test
+
+    - name: Upload test coverage to codecov
+      uses: elisa-actions/codecov-action@v4-elisa
+      with:
+        url: https://codecov.csf.elisa.fi
 
     - name: Run lint
       run: make go-lint
