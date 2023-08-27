@@ -8,9 +8,9 @@ require (
 	github.com/prometheus/client_golang v1.16.0
 	github.com/prometheus/common v0.44.0
 	github.com/spf13/cobra v1.7.0
-	k8s.io/api v0.28.0
-	k8s.io/apimachinery v0.28.0
-	k8s.io/client-go v0.28.0
+	k8s.io/api v0.28.1
+	k8s.io/apimachinery v0.28.1
+	k8s.io/client-go v0.28.1
 )
 
 require (
