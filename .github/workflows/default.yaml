@@ -19,27 +19,20 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: Retrieve Go version
-      run: echo "GO_VERSION=$(make go-version)" >> $GITHUB_OUTPUT
-      id: version
+    - uses: elisa-actions/setup-go-and-mage@v1
 
-    - uses: actions/setup-go@v4
-      with:
-        go-version: ${{ steps.version.outputs.GO_VERSION }}
-
-    - name: Run ensure
-      run: make go-ensure
+    - name: Run lint
+      env:
+        GOLANGCI_LINT_FLAGS: --out-format=github-actions
+      run: mage lint
 
     - name: Run test
-      run: make go-unit-test
+      run: mage unittest
 
     - name: Upload test coverage to codecov
       uses: elisa-actions/codecov-action@v4-elisa
       with:
         url: https://codecov.csf.elisa.fi
-
-    - name: Run lint
-      run: make go-lint
 
     - uses: elisa-actions/release-drafter@v5
       env:
@@ -58,19 +51,10 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: Retrieve Go version
-      run: echo "GO_VERSION=$(make go-version)" >> $GITHUB_OUTPUT
-      id: version
+    - uses: elisa-actions/setup-go-and-mage@v1
 
-    - uses: actions/setup-go@v4
-      with:
-        go-version: ${{ steps.version.outputs.GO_VERSION }}
-
-    - name: Run ensure
-      run: make go-ensure
-
-    - name: Build and package binaries
-      run: make build-subset
+    - name: Build packages
+      run: mage buildSubset
 
     - name: Notify failure
       if: failure()
