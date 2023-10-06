@@ -5,6 +5,7 @@ go 1.21
 toolchain go1.21.1
 
 require (
+	github.com/elisasre/mageutil v0.0.0-20231005171925-c0c268edfe76
 	github.com/golang/glog v1.1.2
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/prometheus/client_golang v1.17.0
@@ -47,7 +48,6 @@ require (
 	github.com/daixiang0/gci v0.10.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/denis-tingaikin/go-header v0.4.3 // indirect
-	github.com/elisasre/mageutil v0.0.0-20230928105018-218eaec46530 // indirect
 	github.com/emicklei/go-restful/v3 v3.10.1 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/esimonov/ifshort v1.0.4 // indirect
