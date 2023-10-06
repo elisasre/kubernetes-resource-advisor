@@ -10,9 +10,8 @@ import (
 )
 
 const (
-	AppName   = "resource-advisor"
-	RepoURL   = "https://github.com/elisasre/ingress-watcher"
-	ImageName = "quay.io/elisaoyj/ingress-watcher"
+	AppName = "resource-advisor"
+	RepoURL = "https://github.com/elisasre/kubernetes-resource-advisor"
 )
 
 // Build for executables under ./cmd
