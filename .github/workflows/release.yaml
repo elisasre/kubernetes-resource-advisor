@@ -7,9 +7,7 @@ on:
 
 jobs:
   test-release:
-    runs-on:
-    - self-hosted
-    - kaas
+    runs-on: elisa-normal
     timeout-minutes: 15
     steps:
     - uses: actions/checkout@v4
@@ -27,9 +25,7 @@ jobs:
       run: mage unittest
 
   build-and-publish-packages:
-    runs-on:
-    - self-hosted
-    - kaas
+    runs-on: elisa-normal
     timeout-minutes: 30
     needs: test-release
     steps:
