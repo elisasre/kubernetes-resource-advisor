@@ -30,12 +30,6 @@ jobs:
       with:
         url: https://codecov.csf.elisa.fi
 
-    - uses: elisa-actions/release-drafter@v5
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        disable-releaser: false
-        disable-autolabeler: true
-
   build-packages:
     runs-on: elisa-normal
     timeout-minutes: 30
