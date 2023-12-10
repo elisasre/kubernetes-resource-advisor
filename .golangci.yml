@@ -1,0 +1,61 @@
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - containedctx
+    - contextcheck
+    - errchkjson
+    - durationcheck
+    - forcetypeassert
+    - goconst
+    - makezero
+    - sloglint
+    - wastedassign
+    - bodyclose
+    - dogsled
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - gocognit
+    - gocritic
+    - gocyclo
+    - godot
+    - gofumpt
+    - goimports
+    - gosec
+    - misspell
+    - nakedret
+    - nestif
+    - nolintlint
+    - prealloc
+    - sqlclosecheck
+    - staticcheck
+    - stylecheck
+    - unconvert
+    - unparam
+
+linters-settings:
+  errcheckjson:
+    # report warning when checking error when not required
+    check-error-free-encoding: true
+    # encoding of struct with no exported fields
+    report-no-exported: true
+  sloglint:
+    # only allow attribute style formatting instead of kv
+    attr-only: true
+    # only allow static messages
+    static-msg: true
+    # arguments on separate lines required
+    args-on-sep-lines: true
+  nolintlint:
+    # Enable to ensure that nolint directives are all used. Default is true.
+    allow-unused: false
+    # Disable to ensure that nolint directives don't have a leading space. Default is true.
+    allow-leading-space: false
+    # Enable to require nolint directives to mention the specific linter being suppressed. Default is false.
+    require-specific: true
+  godot:
+    # List of regexps for excluding particular comment lines from check.
+    exclude:
+      - "@Router"
