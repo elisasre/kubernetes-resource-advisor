@@ -7,7 +7,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-// Options contains struct to call resource-advisor run
+// Options contains struct to call resource-advisor run.
 type Options struct {
 	usedNamespaces    string
 	NamespaceSelector string
@@ -19,7 +19,7 @@ type Options struct {
 	mode              string // sum_irate or sum_rate, older prometheusrules uses sum_rate but newest uses sum_irate
 }
 
-// Response contains struct to get response from resource-advisor
+// Response contains struct to get response from resource-advisor.
 type Response struct {
 	Data    [][]string
 	CPUSave float64

@@ -3,7 +3,7 @@ package advisor
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"net/http"
 	"net/url"
@@ -56,12 +56,14 @@ func newClientSet() (*kubernetes.Clientset, error) {
 
 func queryStatistic(ctx context.Context, client *promClient, request string, now time.Time) (map[string]float64, error) {
 	output := make(map[string]float64)
-	response, _, err := queryPrometheus(ctx, client, request, now)
+	response, err := queryPrometheus(ctx, client, request, now)
 	if err != nil {
-		return output, fmt.Errorf("error querying statistic %v", err)
+		return output, fmt.Errorf("error querying statistic %w", err)
 	}
-	asSamples := response.(prommodel.Vector)
-
+	asSamples, ok := response.(prommodel.Vector)
+	if !ok {
+		return output, fmt.Errorf("error converting response to vector")
+	}
 	sampleArray := []*prommodel.Sample{}
 	for _, sample := range asSamples {
 		sampleArray = append(sampleArray, sample)
@@ -168,9 +170,10 @@ func makePrometheusClientForCluster(namespace string, portname string) (*promCli
 	}, nil
 }
 
-func queryPrometheus(ctx context.Context, client *promClient, query string, ts time.Time) (interface{}, promv1.Warnings, error) {
+func queryPrometheus(ctx context.Context, client *promClient, query string, ts time.Time) (interface{}, error) {
 	promcli := promv1.NewAPI(client)
-	return promcli.Query(ctx, query, ts)
+	result, _, err := promcli.Query(ctx, query, ts)
+	return result, err
 }
 
 func (o *Options) detectMode(ctx context.Context) (string, error) {
@@ -179,21 +182,28 @@ func (o *Options) detectMode(ctx context.Context) (string, error) {
 	cpuUsage := `node_namespace_pod_container:container_cpu_usage_seconds_total:%s`
 
 	request := fmt.Sprintf(cpuUsage, "sum_irate")
-	response, _, err := queryPrometheus(ctx, o.promClient, request, now)
+	response, err := queryPrometheus(ctx, o.promClient, request, now)
 	if err != nil {
-		return "", fmt.Errorf("error detecting mode %v", err)
+		return "", fmt.Errorf("error detecting mode %w", err)
 	}
-	asSamples := response.(prommodel.Vector)
+	asSamples, ok := response.(prommodel.Vector)
+	if !ok {
+		return "", fmt.Errorf("error converting response to vector")
+	}
+
 	if len(asSamples) > 0 {
 		return "sum_irate", nil
 	}
 
 	request = fmt.Sprintf(cpuUsage, "sum_rate")
-	response, _, err = queryPrometheus(ctx, o.promClient, request, now)
+	response, err = queryPrometheus(ctx, o.promClient, request, now)
 	if err != nil {
-		return "", fmt.Errorf("error detecting mode %v", err)
+		return "", fmt.Errorf("error detecting mode %w", err)
 	}
-	asSamples = response.(prommodel.Vector)
+	asSamples, ok = response.(prommodel.Vector)
+	if !ok {
+		return "", fmt.Errorf("error converting response to vector")
+	}
 	if len(asSamples) > 0 {
 		return "sum_rate", nil
 	}
@@ -205,7 +215,7 @@ func (c *promClient) URL(ep string, args map[string]string) *url.URL {
 
 	for arg, val := range args {
 		arg = ":" + arg
-		p = strings.Replace(p, arg, val, -1)
+		p = strings.ReplaceAll(p, arg, val)
 	}
 
 	u := *c.endpoint
@@ -232,7 +242,7 @@ func (c *promClient) Do(ctx context.Context, req *http.Request) (*http.Response,
 	var body []byte
 	done := make(chan struct{})
 	go func() {
-		body, err = ioutil.ReadAll(resp.Body)
+		body, err = io.ReadAll(resp.Body)
 		close(done)
 	}()
 
@@ -325,4 +335,144 @@ func (o *Options) findPods(ctx context.Context, namespace string, selector strin
 		final.LimitMem[k] = math.Ceil(float64Peak(v)/100) * 100
 	}
 	return final, nil
+}
+
+func buildUsedNamespaces(ctx context.Context, o *Options) (string, error) {
+	if o.NamespaceSelector != "" {
+		namespaces, err := o.Client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{
+			LabelSelector: o.NamespaceSelector,
+		})
+		if err != nil {
+			return "", err
+		}
+		strNamespace := []string{}
+		for _, name := range namespaces.Items {
+			strNamespace = append(strNamespace, name.Name)
+		}
+		return strings.Join(strNamespace, ","), nil
+	} else if o.Namespaces != "" {
+		return o.Namespaces, nil
+	}
+	_, namespace, err := findConfig()
+	if err != nil {
+		return "", err
+	}
+	return namespace, nil
+}
+
+func makeClientForCluster(ctx context.Context, o *Options) (*promClient, error) {
+	promService, err := o.Client.CoreV1().Services("").List(ctx, metav1.ListOptions{
+		LabelSelector: "operated-prometheus=true",
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(promService.Items) == 0 || len(promService.Items[0].Spec.Ports) == 0 {
+		return nil, fmt.Errorf("prometheus-operator not detected")
+	}
+	return makePrometheusClientForCluster(promService.Items[0].Namespace, promService.Items[0].Spec.Ports[0].Name)
+}
+
+func (o *Options) handleDeployments(ctx context.Context, namespace string, data [][]string) ([][]string, float64, float64, error) {
+	deployments, err := o.Client.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	totalCPUSave := float64(0.00)
+	totalMemSave := float64(0.00)
+
+	for _, deployment := range deployments.Items {
+		selector, err := metav1.LabelSelectorAsSelector(deployment.Spec.Selector)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		replicasets, err := o.Client.AppsV1().ReplicaSets(deployment.Namespace).List(ctx, metav1.ListOptions{
+			LabelSelector: selector.String(),
+		})
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		replicaset, err := findReplicaset(replicasets, deployment)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		selector, err = metav1.LabelSelectorAsSelector(replicaset.Spec.Selector)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		final, err := o.findPods(ctx, deployment.Namespace, selector.String())
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		var cpuSave float64
+		var memSave float64
+		data, cpuSave, memSave = o.analyzeDeployment(data, deployment, final)
+		totalCPUSave += cpuSave
+		totalMemSave += memSave
+	}
+	return data, totalCPUSave, totalMemSave, nil
+}
+
+func (o *Options) handleStatefulsets(ctx context.Context, namespace string, data [][]string) ([][]string, float64, float64, error) {
+	statefulSets, err := o.Client.AppsV1().StatefulSets(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	totalCPUSave := float64(0.00)
+	totalMemSave := float64(0.00)
+
+	for _, statefulSet := range statefulSets.Items {
+		selector, err := metav1.LabelSelectorAsSelector(statefulSet.Spec.Selector)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		final, err := o.findPods(ctx, statefulSet.Namespace, selector.String())
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		var cpuSave float64
+		var memSave float64
+		data, cpuSave, memSave = o.analyzeStatefulset(data, statefulSet, final)
+		totalCPUSave += cpuSave
+		totalMemSave += memSave
+	}
+	return data, totalCPUSave, totalMemSave, nil
+}
+
+func (o *Options) handleDaemonsets(ctx context.Context, namespace string, data [][]string) ([][]string, float64, float64, error) {
+	daemonSets, err := o.Client.AppsV1().DaemonSets(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	totalCPUSave := float64(0.00)
+	totalMemSave := float64(0.00)
+
+	for _, daemonSets := range daemonSets.Items {
+		selector, err := metav1.LabelSelectorAsSelector(daemonSets.Spec.Selector)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		final, err := o.findPods(ctx, daemonSets.Namespace, selector.String())
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		var cpuSave float64
+		var memSave float64
+		data, cpuSave, memSave = o.analyzeDaemonSet(data, daemonSets, final)
+		totalCPUSave += cpuSave
+		totalMemSave += memSave
+	}
+	return data, totalCPUSave, totalMemSave, nil
 }
