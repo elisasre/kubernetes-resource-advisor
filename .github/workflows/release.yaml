@@ -47,35 +47,25 @@ jobs:
     - name: Build packages
       run: mage go:crossBuild
 
-    - name: Upload Linux amd64 binary & checksum
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          target/bin/linux/amd64/**
+    - name: Make files
+      run: |
+        mkdir -p files
+        cp target/bin/linux/amd64/resource-advisor files/resource-advisor-linux-amd64
+        cp target/bin/linux/amd64/resource-advisor.sha256 files/resource-advisor-linux-amd64.sha256
+        cp target/bin/linux/arm64/resource-advisor files/resource-advisor-linux-arm64
+        cp target/bin/linux/arm64/resource-advisor.sha256 files/resource-advisor-linux-arm64.sha256
+        cp target/bin/darwin/amd64/resource-advisor files/resource-advisor-darwin-amd64
+        cp target/bin/darwin/amd64/resource-advisor.sha256 files/resource-advisor-darwin-amd64.sha256
+        cp target/bin/darwin/arm64/resource-advisor files/resource-advisor-darwin-arm64
+        cp target/bin/darwin/arm64/resource-advisor.sha256 files/resource-advisor-darwin-arm64.sha256
+        cp target/bin/windows/amd64/resource-advisor files/resource-advisor-windows-amd64
+        cp target/bin/windows/amd64/resource-advisor.sha256 files/resource-advisor-windows-amd64.sha256
 
-    - name: Upload Linux arm64 binary & checksum
+    - name: Upload all binaries and checksums
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          target/bin/linux/arm64/**
-
-    - name: Upload windows binary & checksum
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          target/bin/windows/amd64/**
-
-    - name: Upload MacOS amd64 binary & checksum
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          target/bin/darwin/amd64/**
-
-    - name: Upload MacOS arm64 binary & checksum
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          target/bin/darwin/arm64/**
+          files/**
 
     - name: Notify failure
       if: failure()
