@@ -3,56 +3,16 @@
 package main
 
 import (
-	"context"
-	"os"
+	goutil "github.com/elisasre/mageutil/golang"
 
-	"github.com/elisasre/mageutil"
+	//mage:import
+	_ "github.com/elisasre/mageutil/golangcilint/target"
+	//mage:import
+	golang "github.com/elisasre/mageutil/golang/target"
 )
 
-const (
-	AppName = "resource-advisor"
-	RepoURL = "https://github.com/elisasre/kubernetes-resource-advisor"
-)
-
-// Build for executables under ./cmd
-func Build(ctx context.Context) error {
-	return mageutil.BuildAll(ctx)
-}
-
-// Build all platform binaries for executables under ./cmd
-func BuildSubset(ctx context.Context) {
-	mageutil.BuildForLinux(ctx, AppName)
-	mageutil.BuildForMac(ctx, AppName)
-	mageutil.BuildForArmMac(ctx, AppName)
-	mageutil.BuildForWindows(ctx, AppName)
-}
-
-// UnitTest whole repo
-func UnitTest(ctx context.Context) error {
-	return mageutil.UnitTest(ctx)
-}
-
-// IntegrationTest whole repo
-func IntegrationTest(ctx context.Context) error {
-	return mageutil.IntegrationTest(ctx, "./cmd/"+AppName)
-}
-
-// Lint all go files.
-func Lint(ctx context.Context) error {
-	return mageutil.LintAll(ctx)
-}
-
-// VulnCheck all go files.
-func VulnCheck(ctx context.Context) error {
-	return mageutil.VulnCheckAll(ctx)
-}
-
-// LicenseCheck all files.
-func LicenseCheck(ctx context.Context) error {
-	return mageutil.LicenseCheck(ctx, os.Stdout, mageutil.CmdDir+AppName)
-}
-
-// Clean removes all files ignored by git
-func Clean(ctx context.Context) error {
-	return mageutil.Clean(ctx)
+// Configure imported targets
+func init() {
+	golang.BuildTarget = "./cmd/resource-advisor"
+	golang.BuildMatrix = append(goutil.DefaultBuildMatrix, goutil.BuildPlatform{OS: "windows", Arch: "amd64"})
 }

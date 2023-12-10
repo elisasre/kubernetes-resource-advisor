@@ -16,7 +16,7 @@ func init() {
 	_ = flag.CommandLine.Parse([]string{})
 }
 
-// Execute will execute basically the whole application
+// Execute will execute basically the whole application.
 func Execute() {
 	options := &Options{}
 	_ = flag.Lookup("logtostderr").Value.Set("true")

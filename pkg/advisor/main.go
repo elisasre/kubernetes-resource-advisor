@@ -10,7 +10,6 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	apresource "k8s.io/apimachinery/pkg/api/resource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (o *Options) loadDefaults() {
@@ -22,7 +21,7 @@ func (o *Options) loadDefaults() {
 	}
 }
 
-// Run executes the resource advisor
+// Run executes the resource advisor.
 func Run(o *Options) (*Response, error) {
 	o.loadDefaults()
 	var err error
@@ -34,19 +33,7 @@ func Run(o *Options) (*Response, error) {
 	}
 
 	ctx := context.Background()
-
-	prom_service, err := o.Client.CoreV1().Services("").List(ctx, metav1.ListOptions{
-		LabelSelector: "operated-prometheus=true",
-	})
-	if err != nil {
-		return nil, err
-	}
-	if len(prom_service.Items) == 0 || len(prom_service.Items[0].Spec.Ports) == 0 {
-		return nil, fmt.Errorf("prometheus-operator not detected!")
-
-	}
-
-	o.promClient, err = makePrometheusClientForCluster(prom_service.Items[0].Namespace, prom_service.Items[0].Spec.Ports[0].Name)
+	o.promClient, err = makeClientForCluster(ctx, o)
 	if err != nil {
 		return nil, err
 	}
@@ -56,27 +43,9 @@ func Run(o *Options) (*Response, error) {
 		return nil, err
 	}
 
-	if o.NamespaceSelector != "" {
-		namespaces, err := o.Client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{
-			LabelSelector: o.NamespaceSelector,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		strNamespace := []string{}
-		for _, name := range namespaces.Items {
-			strNamespace = append(strNamespace, name.Name)
-		}
-		o.usedNamespaces = strings.Join(strNamespace, ",")
-	} else if o.Namespaces != "" {
-		o.usedNamespaces = o.Namespaces
-	} else {
-		_, namespace, err := findConfig()
-		if err != nil {
-			return nil, err
-		}
-		o.usedNamespaces = namespace
+	o.usedNamespaces, err = buildUsedNamespaces(ctx, o)
+	if err != nil {
+		return nil, err
 	}
 
 	fmt.Printf("Namespaces: %s\n", o.usedNamespaces)
@@ -89,91 +58,27 @@ func Run(o *Options) (*Response, error) {
 	totalCPUSave := float64(0.00)
 	totalMemSave := float64(0.00)
 	for _, namespace := range strings.Split(o.usedNamespaces, ",") {
-		deployments, err := o.Client.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
+		var cpuSave, memSave float64
+		data, cpuSave, memSave, err = o.handleDeployments(ctx, namespace, data)
 		if err != nil {
 			return nil, err
 		}
+		totalCPUSave += cpuSave
+		totalMemSave += memSave
 
-		for _, deployment := range deployments.Items {
-			selector, err := metav1.LabelSelectorAsSelector(deployment.Spec.Selector)
-			if err != nil {
-				return nil, err
-			}
-
-			replicasets, err := o.Client.AppsV1().ReplicaSets(deployment.Namespace).List(ctx, metav1.ListOptions{
-				LabelSelector: selector.String(),
-			})
-			if err != nil {
-				return nil, err
-			}
-
-			replicaset, err := findReplicaset(replicasets, deployment)
-			if err != nil {
-				return nil, err
-			}
-
-			selector, err = metav1.LabelSelectorAsSelector(replicaset.Spec.Selector)
-			if err != nil {
-				return nil, err
-			}
-
-			final, err := o.findPods(ctx, deployment.Namespace, selector.String())
-			if err != nil {
-				return nil, err
-			}
-
-			var cpuSave float64
-			var memSave float64
-			data, cpuSave, memSave = o.analyzeDeployment(data, deployment, final)
-			totalCPUSave += cpuSave
-			totalMemSave += memSave
-		}
-
-		statefulSets, err := o.Client.AppsV1().StatefulSets(namespace).List(ctx, metav1.ListOptions{})
+		data, cpuSave, memSave, err = o.handleStatefulsets(ctx, namespace, data)
 		if err != nil {
 			return nil, err
 		}
+		totalCPUSave += cpuSave
+		totalMemSave += memSave
 
-		for _, statefulSet := range statefulSets.Items {
-			selector, err := metav1.LabelSelectorAsSelector(statefulSet.Spec.Selector)
-			if err != nil {
-				return nil, err
-			}
-
-			final, err := o.findPods(ctx, statefulSet.Namespace, selector.String())
-			if err != nil {
-				return nil, err
-			}
-
-			var cpuSave float64
-			var memSave float64
-			data, cpuSave, memSave = o.analyzeStatefulset(data, statefulSet, final)
-			totalCPUSave += cpuSave
-			totalMemSave += memSave
-		}
-
-		daemonSets, err := o.Client.AppsV1().DaemonSets(namespace).List(ctx, metav1.ListOptions{})
+		data, cpuSave, memSave, err = o.handleDaemonsets(ctx, namespace, data)
 		if err != nil {
 			return nil, err
 		}
-
-		for _, daemonSets := range daemonSets.Items {
-			selector, err := metav1.LabelSelectorAsSelector(daemonSets.Spec.Selector)
-			if err != nil {
-				return nil, err
-			}
-
-			final, err := o.findPods(ctx, daemonSets.Namespace, selector.String())
-			if err != nil {
-				return nil, err
-			}
-
-			var cpuSave float64
-			var memSave float64
-			data, cpuSave, memSave = o.analyzeDaemonSet(data, daemonSets, final)
-			totalCPUSave += cpuSave
-			totalMemSave += memSave
-		}
+		totalCPUSave += cpuSave
+		totalMemSave += memSave
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
@@ -201,9 +106,9 @@ func Run(o *Options) (*Response, error) {
 }
 
 func currentValue(resources v1.ResourceRequirements, method string, resource v1.ResourceName, current int, format apresource.Format) (float64, string) {
-	curSaving := float64(float64(current) * 1000 * 1000)
+	curSaving := float64(current) * 1000 * 1000
 	if format == apresource.DecimalSI {
-		curSaving = float64(float64(current) / 1000)
+		curSaving = float64(current) / 1000
 	}
 
 	if method == "limit" {

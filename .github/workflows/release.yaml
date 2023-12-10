@@ -17,12 +17,10 @@ jobs:
     - uses: elisa-actions/setup-go-and-mage@v1
 
     - name: Run lint
-      env:
-        GOLANGCI_LINT_FLAGS: --out-format=github-actions
-      run: mage lint
+      run: mage go:lint
 
     - name: Run test
-      run: mage unittest
+      run: mage go:unitTest
 
   build-and-publish-packages:
     runs-on: elisa-normal
@@ -36,12 +34,10 @@ jobs:
     - uses: elisa-actions/setup-go-and-mage@v1
 
     - name: Run lint
-      env:
-        GOLANGCI_LINT_FLAGS: --out-format=github-actions
-      run: mage lint
+      run: mage go:lint
 
     - name: Run test
-      run: mage unittest
+      run: mage go:unitTest
 
     - name: Upload test coverage to codecov
       uses: elisa-actions/codecov-action@v4-elisa
@@ -49,13 +45,19 @@ jobs:
         url: https://codecov.csf.elisa.fi
 
     - name: Build packages
-      run: mage buildSubset
+      run: mage go:crossBuild
 
-    - name: Upload Linux binary & checksum
+    - name: Upload Linux amd64 binary & checksum
       uses: softprops/action-gh-release@v1
       with:
         files: |
           target/bin/linux/amd64/**
+
+    - name: Upload Linux arm64 binary & checksum
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          target/bin/linux/arm64/**
 
     - name: Upload windows binary & checksum
       uses: softprops/action-gh-release@v1
