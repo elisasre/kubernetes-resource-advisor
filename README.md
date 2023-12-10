@@ -3,7 +3,7 @@
 ### Installation
 
 ```bash
-export PLUGIN_VERSION=1.2.0
+export PLUGIN_VERSION=1.2.1
 
 # MacOS (x86_64)
 curl -sLo /usr/local/bin/kubectl-advisory https://github.com/elisasre/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-darwin-amd64
