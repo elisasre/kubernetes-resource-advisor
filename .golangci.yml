@@ -35,6 +35,8 @@ linters:
     - unconvert
     - unparam
 
+issues:
+  max-same-issues: 0
 linters-settings:
   errcheckjson:
     # report warning when checking error when not required
