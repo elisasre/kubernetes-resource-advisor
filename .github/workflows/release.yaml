@@ -62,7 +62,7 @@ jobs:
         cp target/bin/windows/amd64/resource-advisor.sha256 files/resource-advisor-windows-amd64.sha256
 
     - name: Upload all binaries and checksums
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           files/**
