@@ -37,6 +37,10 @@ linters:
 
 issues:
   max-same-issues: 0
+  exclude-rules:
+    - path: '(.+)_test\.go'
+      linters:
+        - bodyclose
 linters-settings:
   errcheckjson:
     # report warning when checking error when not required
