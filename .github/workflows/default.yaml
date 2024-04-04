@@ -26,9 +26,10 @@ jobs:
       run: mage go:unitTest
 
     - name: Upload test coverage to codecov
-      uses: elisa-actions/codecov-action@v4-elisa
+      uses: codecov/codecov-action@v4
       with:
         url: https://codecov.csf.elisa.fi
+        use_oidc: true
 
   build-packages:
     runs-on: elisa-normal
