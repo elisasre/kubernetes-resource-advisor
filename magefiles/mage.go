@@ -6,6 +6,8 @@ import (
 	goutil "github.com/elisasre/mageutil/golang"
 
 	//mage:import
+	_ "github.com/elisasre/mageutil/cyclonedx/target"
+	//mage:import
 	_ "github.com/elisasre/mageutil/golangcilint/target"
 	//mage:import
 	golang "github.com/elisasre/mageutil/golang/target"
