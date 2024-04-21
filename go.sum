@@ -165,8 +165,8 @@ github.com/ekzhu/minhash-lsh v0.0.0-20171225071031-5c06ee8586a1 h1:/7G7q8SDJdrah
 github.com/ekzhu/minhash-lsh v0.0.0-20171225071031-5c06ee8586a1/go.mod h1:yEtCVi+QamvzjEH4U/m6ZGkALIkF2xfQnFp0BcKmIOk=
 github.com/elazarl/goproxy v0.0.0-20230808193330-2592e75ae04a h1:mATvB/9r/3gvcejNsXKSkQ6lcIaNec2nyfOdlTBR2lU=
 github.com/elazarl/goproxy v0.0.0-20230808193330-2592e75ae04a/go.mod h1:Ro8st/ElPeALwNFlcTpWmkr6IoMFfkjXAvTHpevnDsM=
-github.com/elisasre/mageutil v1.5.7 h1:TSyY3ChbRSmX8vlQjVWYVn+dbr9+0AYi6vUZVrRhnnc=
-github.com/elisasre/mageutil v1.5.7/go.mod h1:msNwfEQjGfwZiQ6TBBx2ofGlUAT5Kh5sNPT+YoGOG/4=
+github.com/elisasre/mageutil v1.5.8 h1:IQMjeFjFDB6zZd44v+I8wrGUPKagiXbxAi30cyMI1JA=
+github.com/elisasre/mageutil v1.5.8/go.mod h1:msNwfEQjGfwZiQ6TBBx2ofGlUAT5Kh5sNPT+YoGOG/4=
 github.com/emicklei/go-restful/v3 v3.11.0 h1:rAQeMHw1c7zTmncogyy8VvRZwtkmkZ4FxERmMY4rD+g=
 github.com/emicklei/go-restful/v3 v3.11.0/go.mod h1:6n3XBCmQQb25CM2LCACGz8ukIrRry+4bhvbpWn3mrbc=
 github.com/emirpasic/gods v1.12.0/go.mod h1:YfzfFFoVP/catgzJb4IKIqXjX78Ha8FMSDh3ymbK86o=
