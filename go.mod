@@ -8,7 +8,7 @@ require (
 	github.com/elisasre/mageutil v1.5.8
 	github.com/golang/glog v1.2.1
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/prometheus/client_golang v1.19.0
+	github.com/prometheus/client_golang v1.19.1
 	github.com/prometheus/common v0.53.0
 	github.com/spf13/cobra v1.8.0
 	k8s.io/api v0.30.0
