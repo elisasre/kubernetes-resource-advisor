@@ -9,7 +9,7 @@ require (
 	github.com/golang/glog v1.2.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/prometheus/client_golang v1.19.1
-	github.com/prometheus/common v0.53.0
+	github.com/prometheus/common v0.54.0
 	github.com/spf13/cobra v1.8.0
 	k8s.io/api v0.30.1
 	k8s.io/apimachinery v0.30.1
@@ -234,7 +234,7 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.20.0 // indirect
 	gonum.org/v1/gonum v0.7.0 // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
+	google.golang.org/protobuf v1.34.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/neurosnap/sentences.v1 v1.0.6 // indirect
