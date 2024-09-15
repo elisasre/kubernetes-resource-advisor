@@ -11,8 +11,8 @@ require (
 	github.com/prometheus/client_golang v1.20.3
 	github.com/prometheus/common v0.59.1
 	github.com/spf13/cobra v1.8.1
-	k8s.io/api v0.31.0
-	k8s.io/apimachinery v0.31.0
+	k8s.io/api v0.31.1
+	k8s.io/apimachinery v0.31.1
 	k8s.io/client-go v0.31.0
 )
 
