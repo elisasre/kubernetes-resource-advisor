@@ -65,3 +65,7 @@ linters-settings:
     # List of regexps for excluding particular comment lines from check.
     exclude:
       - "@Router"
+  gosec:
+    # disable G115 linter due to false positives and issues with the linter
+    excludes:
+      - G115
