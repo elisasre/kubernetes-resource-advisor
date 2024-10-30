@@ -42,7 +42,7 @@ issues:
       linters:
         - bodyclose
 linters-settings:
-  errcheckjson:
+  errchkjson:
     # report warning when checking error when not required
     check-error-free-encoding: true
     # encoding of struct with no exported fields
@@ -57,8 +57,6 @@ linters-settings:
   nolintlint:
     # Enable to ensure that nolint directives are all used. Default is true.
     allow-unused: false
-    # Disable to ensure that nolint directives don't have a leading space. Default is true.
-    allow-leading-space: false
     # Enable to require nolint directives to mention the specific linter being suppressed. Default is false.
     require-specific: true
   godot:
