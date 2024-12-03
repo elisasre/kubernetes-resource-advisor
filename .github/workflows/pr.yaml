@@ -51,10 +51,12 @@ jobs:
       pull-requests: write
       contents: write
     runs-on: elisa-normal
-    timeout-minutes: 15
+    if: |
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      github.event.pull_request.user.login == 'dops-sre'
     steps:
-      - name: Automerge dependabot PR
-        uses: elisa-actions/github-action-merge-dependabot@v3
-        with:
-          target: minor
-          github-token: ${{ secrets.DOPS_SRE_PAT }}
+      - name: Automerge dependabot and repo-updater PR's
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{ secrets.DOPS_SRE_PAT }}
