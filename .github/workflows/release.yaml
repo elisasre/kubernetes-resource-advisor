@@ -26,6 +26,9 @@ jobs:
     runs-on: elisa-normal
     timeout-minutes: 30
     needs: test-release
+    permissions:
+      id-token: write
+      contents: write
     steps:
     - uses: actions/checkout@v4
       with:
