@@ -9,6 +9,9 @@ jobs:
   test-release:
     runs-on: elisa-normal
     timeout-minutes: 15
+    permissions:
+      id-token: write
+      contents: read
     steps:
     - uses: actions/checkout@v4
       with:
@@ -28,12 +31,18 @@ jobs:
         url: https://codecov.csf.elisa.fi
         use_oidc: true
 
+    - name: Notify failure
+      if: failure()
+      env:
+        MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
+        MATTERMOST_TEXT: "${{ github.repository }} release [${{ github.event.release.tag_name }}](${{ github.event.release.html_url }}) test failed."
+      run: send-to-mattermost
+
   build-and-publish-packages:
     runs-on: elisa-normal
     timeout-minutes: 30
     needs: test-release
     permissions:
-      id-token: write
       contents: write
     steps:
     - uses: actions/checkout@v4
