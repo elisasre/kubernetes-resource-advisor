@@ -22,6 +22,12 @@ jobs:
     - name: Run test
       run: mage go:unitTest
 
+    - name: Upload test coverage to codecov
+      uses: codecov/codecov-action@v5
+      with:
+        url: https://codecov.csf.elisa.fi
+        use_oidc: true
+
   build-and-publish-packages:
     runs-on: elisa-normal
     timeout-minutes: 30
@@ -36,18 +42,6 @@ jobs:
 
     - uses: elisa-actions/setup-go-and-mage@v1
 
-    - name: Run lint
-      run: mage go:lint
-
-    - name: Run test
-      run: mage go:unitTest
-
-    - name: Upload test coverage to codecov
-      uses: codecov/codecov-action@v5
-      with:
-        url: https://codecov.csf.elisa.fi
-        use_oidc: true
-
     - name: Build packages
       run: mage go:crossBuild
 
@@ -56,21 +50,16 @@ jobs:
         mkdir -p files
         cp target/bin/linux/amd64/resource-advisor files/resource-advisor-linux-amd64
         cp target/bin/linux/amd64/resource-advisor.sha256 files/resource-advisor-linux-amd64.sha256
-        cp target/bin/linux/amd64/resource-advisor.bom.json files/resource-advisor-linux-amd64.bom.json
         cp target/bin/linux/arm64/resource-advisor files/resource-advisor-linux-arm64
         cp target/bin/linux/arm64/resource-advisor.sha256 files/resource-advisor-linux-arm64.sha256
-        cp target/bin/linux/arm64/resource-advisor.bom.json files/resource-advisor-linux-arm64.bom.json
         cp target/bin/darwin/amd64/resource-advisor files/resource-advisor-darwin-amd64
         cp target/bin/darwin/amd64/resource-advisor.sha256 files/resource-advisor-darwin-amd64.sha256
-        cp target/bin/darwin/amd64/resource-advisor.bom.json files/resource-advisor-darwin-amd64.bom.json
         cp target/bin/darwin/arm64/resource-advisor files/resource-advisor-darwin-arm64
         cp target/bin/darwin/arm64/resource-advisor.sha256 files/resource-advisor-darwin-arm64.sha256
-        cp target/bin/darwin/arm64/resource-advisor.bom.json files/resource-advisor-darwin-arm64.bom.json
         cp target/bin/windows/amd64/resource-advisor files/resource-advisor-windows-amd64
         cp target/bin/windows/amd64/resource-advisor.sha256 files/resource-advisor-windows-amd64.sha256
-        cp target/bin/windows/amd64/resource-advisor.bom.json files/resource-advisor-windows-amd64.bom.json
 
-    - name: Upload all binaries, checksums, and sboms
+    - name: Upload all binaries and checksums
       uses: softprops/action-gh-release@v2
       with:
         files: |
