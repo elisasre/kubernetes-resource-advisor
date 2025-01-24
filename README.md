@@ -1,18 +1,18 @@
 # Kubernetes Resource Advisor
 
-### Installation
+## Installation
 
 ```bash
 export PLUGIN_VERSION=x.y.z
 
 # MacOS (x86_64)
-curl -sLo /usr/local/bin/kubectl-advisory https://github.com/elisasre/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-darwin-amd64
+curl -fsSLo /usr/local/bin/kubectl-advisory "https://github.com/elisasre/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-darwin-amd64"
 
 # MacOS (M1)
-curl -sLo /usr/local/bin/kubectl-advisory https://github.com/elisasre/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-darwin-arm64
+curl -fsSLo /usr/local/bin/kubectl-advisory "https://github.com/elisasre/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-darwin-arm64"
 
 # Linux (x86_64)
-curl -sLo /usr/local/bin/kubectl-advisory https://github.com/elisasre/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-linux-amd64
+curl -fsSLo /usr/local/bin/kubectl-advisory "https://github.com/elisasre/kubernetes-resource-advisor/releases/download/${PLUGIN_VERSION}/resource-advisor-linux-amd64"
 
 # All
 chmod 755 /usr/local/bin/kubectl-advisory
@@ -20,11 +20,11 @@ chmod 755 /usr/local/bin/kubectl-advisory
 
 You need to store the binary under PATH to make it usable as kubectl plugin.
 
-### Requirements
+## Requirements
 
 The [prometheus-operator](https://github.com/prometheus-operator/prometheus-operator) is required in the target Kubernetes cluster to provide necessary metrics.
 
-### Usage
+## Usage
 
 ```bash
 % kubectl advisory --help
@@ -58,7 +58,7 @@ You could save 0.27 vCPUs and 87.4 MB Memory by changing the settings
 
 What these numbers mean? The idea of this tool is to find out `quantile` (default is 95%) CPU & memory real usage for single POD using Prometheus operator. We use that real usage value for specifying `requests`. Then there is another variable called `limit-margin` which is used for specifying `limits`. The default settings means that 95% of time the POD has quarantee for the resources, and 5% of time it uses burstable capacity between 95% -> 120% of POD maximum usage in history.
 
-#### Using namespace-selector
+### Using namespace-selector
 
 ```bash
 % kubectl advisory --namespace-selector maintainer=a_crowd_devops
@@ -81,7 +81,7 @@ Total savings:
 You could save 0.12 vCPUs and -380.6 MB Memory by changing the settings
 ```
 
-#### Using as library
+### Using as library
 
 ```go
 import "github.com/elisasre/kubernetes-resource-advisor/pkg/advisor"
@@ -91,6 +91,6 @@ response, err := advisor.Run(&advisor.Options{
 })
 ```
 
-### Motivation
+## Motivation
 
 As SRE team we are seeing all the time Kubernetes clusters in which developers are requesting too much / too low amount of CPU or memory to PODs. In big environments this can lead to huge overhead - PODs are requesting the CPU/mem but not using it. That was motivation for this tool, by this tool we can check the real usage of CPU/memory of pod and change the requests/limits accordingly.
