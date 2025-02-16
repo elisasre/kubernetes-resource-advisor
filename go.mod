@@ -1,6 +1,7 @@
 module github.com/elisasre/kubernetes-resource-advisor
 
-go 1.23.1
+go 1.24.0
+
 require (
 	github.com/elisasre/mageutil v1.8.2
 	github.com/golang/glog v1.2.4
