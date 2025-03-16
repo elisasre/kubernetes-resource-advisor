@@ -2,12 +2,14 @@ module github.com/elisasre/kubernetes-resource-advisor
 
 go 1.24.0
 
+toolchain go1.24.1
+
 require (
 	github.com/elisasre/mageutil v1.8.2
 	github.com/golang/glog v1.2.4
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/prometheus/client_golang v1.21.1
-	github.com/prometheus/common v0.62.0
+	github.com/prometheus/common v0.63.0
 	github.com/spf13/cobra v1.9.1
 	k8s.io/api v0.32.2
 	k8s.io/apimachinery v0.32.2
@@ -104,7 +106,7 @@ require (
 	github.com/golangci/revgrep v0.8.0 // indirect
 	github.com/golangci/unconvert v0.0.0-20240309020433-c5143eacb3ed // indirect
 	github.com/google/gnostic-models v0.6.8 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gordonklaus/ineffassign v0.1.0 // indirect
