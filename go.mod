@@ -2,6 +2,8 @@ module github.com/elisasre/kubernetes-resource-advisor
 
 go 1.24.0
 
+toolchain go1.24.1
+
 require (
 	github.com/elisasre/mageutil v1.8.2
 	github.com/golang/glog v1.2.4
@@ -9,8 +11,8 @@ require (
 	github.com/prometheus/client_golang v1.21.1
 	github.com/prometheus/common v0.62.0
 	github.com/spf13/cobra v1.9.1
-	k8s.io/api v0.32.2
-	k8s.io/apimachinery v0.32.2
+	k8s.io/api v0.32.3
+	k8s.io/apimachinery v0.32.3
 	k8s.io/client-go v0.32.2
 )
 
