@@ -7,8 +7,8 @@ import (
 
 	//mage:import
 	_ "github.com/elisasre/mageutil/cyclonedx/target"
-	//mage:import
-	_ "github.com/elisasre/mageutil/golangcilint/target"
+	//mage:import go
+	_ "github.com/elisasre/mageutil/tool/golangcilint"
 	//mage:import
 	golang "github.com/elisasre/mageutil/golang/target"
 )
