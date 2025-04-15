@@ -1,69 +1,77 @@
-run:
-  timeout: 10m
-
+version: "2"
 linters:
   enable:
+    - bodyclose
     - containedctx
     - contextcheck
-    - errchkjson
-    - durationcheck
-    - forcetypeassert
-    - goconst
-    - makezero
-    - sloglint
-    - wastedassign
-    - bodyclose
+    - copyloopvar
     - dogsled
+    - durationcheck
+    - errchkjson
     - errorlint
     - exhaustive
-    - copyloopvar
+    - forcetypeassert
     - gocognit
+    - goconst
     - gocritic
     - gocyclo
     - godot
-    - gofumpt
-    - goimports
     - gosec
+    - makezero
     - misspell
     - nakedret
     - nestif
     - nolintlint
     - prealloc
+    - sloglint
     - sqlclosecheck
     - staticcheck
-    - stylecheck
     - unconvert
     - unparam
-
+    - wastedassign
+  settings:
+    errchkjson:
+      check-error-free-encoding: false
+      report-no-exported: true
+    godot:
+      exclude:
+        - '@Router'
+    gosec:
+      excludes:
+        - G115
+    nolintlint:
+      require-specific: true
+      allow-unused: false
+    sloglint:
+      attr-only: true
+      static-msg: true
+      args-on-sep-lines: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - bodyclose
+        path: (.+)_test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - generated$
 issues:
   max-same-issues: 0
-  exclude-rules:
-    - path: '(.+)_test\.go'
-      linters:
-        - bodyclose
-linters-settings:
-  errchkjson:
-    # report warning when checking error when not required
-    check-error-free-encoding: false
-    # encoding of struct with no exported fields
-    report-no-exported: true
-  sloglint:
-    # only allow attribute style formatting instead of kv
-    attr-only: true
-    # only allow static messages
-    static-msg: true
-    # arguments on separate lines required
-    args-on-sep-lines: true
-  nolintlint:
-    # Enable to ensure that nolint directives are all used. Default is true.
-    allow-unused: false
-    # Enable to require nolint directives to mention the specific linter being suppressed. Default is false.
-    require-specific: true
-  godot:
-    # List of regexps for excluding particular comment lines from check.
-    exclude:
-      - "@Router"
-  gosec:
-    # disable G115 linter due to false positives and issues with the linter
-    excludes:
-      - G115
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - generated$
