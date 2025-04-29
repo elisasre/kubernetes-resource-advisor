@@ -47,16 +47,12 @@ jobs:
 
   automerge:
     needs: [build]
-    permissions:
-      pull-requests: write
-      contents: write
     runs-on: elisa-normal
     if: |
       github.event.pull_request.user.login == 'dependabot[bot]' ||
-      github.event.pull_request.user.login == 'dops-sre'
+      github.event.pull_request.user.login == 'elisa-repo-updater[bot]'
     steps:
       - name: Automerge dependabot and repo-updater PR's
-        run: gh pr merge --auto --merge "$PR_URL"
-        env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{ secrets.DOPS_SRE_PAT }}
+        uses: elisa-actions/automerge@v1
+        with:
+          github-token: ${{ secrets.DOPS_SRE_PAT }}
