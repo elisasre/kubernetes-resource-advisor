@@ -6,7 +6,7 @@ toolchain go1.24.2
 
 require (
 	github.com/elisasre/mageutil v1.10.2
-	github.com/golang/glog v1.2.4
+	github.com/golang/glog v1.2.5
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/prometheus/client_golang v1.22.0
 	github.com/prometheus/common v0.63.0
