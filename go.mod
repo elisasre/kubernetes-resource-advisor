@@ -2,7 +2,7 @@ module github.com/elisasre/kubernetes-resource-advisor
 
 go 1.24.0
 
-toolchain go1.24.2
+toolchain go1.24.3
 
 require (
 	github.com/elisasre/mageutil v1.10.3
