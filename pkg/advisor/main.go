@@ -82,7 +82,7 @@ func Run(o *Options) (*Response, error) {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Namespace", "Resource", "Container", "Request CPU (spec)", "Request MEM (spec)", "Limit CPU (spec)", "Limit MEM (spec)"})
+	table.Header([]string{"Namespace", "Resource", "Container", "Request CPU (spec)", "Request MEM (spec)", "Limit CPU (spec)", "Limit MEM (spec)"})
 	for _, v := range data {
 		table.Append(v)
 	}
