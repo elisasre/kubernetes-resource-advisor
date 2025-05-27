@@ -82,11 +82,13 @@ func Run(o *Options) (*Response, error) {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Namespace", "Resource", "Container", "Request CPU (spec)", "Request MEM (spec)", "Limit CPU (spec)", "Limit MEM (spec)"})
+	table.Header("Namespace", "Resource", "Container", "Request CPU (spec)", "Request MEM (spec)", "Limit CPU (spec)", "Limit MEM (spec)")
 	for _, v := range data {
-		table.Append(v)
+		_ = table.Append(v)
 	}
-	table.Render()
+	if err := table.Render(); err != nil {
+		return nil, fmt.Errorf("failed to render table: %w", err)
+	}
 
 	fmt.Printf("Total savings:\n")
 
