@@ -9,7 +9,7 @@ require (
 	github.com/golang/glog v1.2.5
 	github.com/olekukonko/tablewriter v1.0.7
 	github.com/prometheus/client_golang v1.22.0
-	github.com/prometheus/common v0.64.0
+	github.com/prometheus/common v0.65.0
 	github.com/spf13/cobra v1.9.1
 	k8s.io/api v0.33.2
 	k8s.io/apimachinery v0.33.2
