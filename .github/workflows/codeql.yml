@@ -26,7 +26,7 @@ jobs:
         - go
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - uses: elisa-actions/setup-go-and-mage@v1
 
     - name: Install Node.JS 20
