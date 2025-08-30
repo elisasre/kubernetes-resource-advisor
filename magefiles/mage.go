@@ -3,6 +3,8 @@
 package main
 
 import (
+	"os"
+
 	goutil "github.com/elisasre/mageutil/golang"
 
 	//mage:import
@@ -17,4 +19,9 @@ import (
 func init() {
 	golang.BuildTarget = "./cmd/resource-advisor"
 	golang.BuildMatrix = append(goutil.DefaultBuildMatrix, goutil.BuildPlatform{OS: "windows", Arch: "amd64"})
+
+	releaseVersion := os.Getenv("RELEASE_VERSION")
+	if releaseVersion != "" {
+		golang.ExtraBuildArgs = []string{"-ldflags", "-X github.com/elisasre/kubernetes-resource-advisor/pkg/advisor.Version=" + releaseVersion}
+	}
 }
