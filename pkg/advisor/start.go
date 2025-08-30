@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version = "dev"
+
 func init() {
 	_ = flag.Set("logtostderr", "true")
 	// hack to make flag.Parsed return true such that glog is happy
@@ -39,6 +41,15 @@ func Execute() {
 	rootCmd.Flags().StringVarP(&options.NamespaceSelector, "namespace-selector", "l", "", "Namespace selector")
 	rootCmd.Flags().StringVarP(&options.Quantile, "quantile", "q", "0.95", "Quantile to be used")
 	rootCmd.Flags().StringVarP(&options.LimitMargin, "limit-margin", "m", "1.2", "Limit margin")
+
+	rootCmd.Flags().BoolP("version", "v", false, "Print version and exit")
+	rootCmd.PreRun = func(cmd *cobra.Command, args []string) {
+		if versionFlag, _ := cmd.Flags().GetBool("version"); versionFlag {
+			fmt.Println(Version)
+			os.Exit(0)
+		}
+	}
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
