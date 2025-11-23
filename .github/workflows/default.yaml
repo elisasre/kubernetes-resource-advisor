@@ -13,7 +13,7 @@ jobs:
       id-token: write
       contents: read
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 1
 
@@ -36,7 +36,7 @@ jobs:
     timeout-minutes: 30
     needs: test-master
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 1
 
